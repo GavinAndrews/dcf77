@@ -1,7 +1,7 @@
 //
 //  www.blinkenlight.net
 //
-//  Copyright 2015 Udo Klein
+//  Copyright 2014, 2015 Udo Klein
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@
 const uint8_t dcf77_analog_sample_pin = 5;
 const uint8_t dcf77_sample_pin = 19; // A5
 const uint8_t dcf77_inverted_samples = 1;
+#if defined(__AVR__)
 const uint8_t dcf77_analog_samples = 1;
+#endif
 
 const uint8_t dcf77_monitor_pin = 18; // A4
 
@@ -47,7 +49,7 @@ const uint8_t dcf77_second_pulse_pin = 10;
 const uint8_t dcf77_signal_good_indicator_pin = 3;
 
 volatile uint16_t ms_counter = 0;
-volatile DCF77::tick_t tick = DCF77::undefined;
+volatile Internal::DCF77::tick_t tick = Internal::DCF77::undefined;
 
 
 template <bool enable, uint8_t threshold,
@@ -65,43 +67,53 @@ void set_output(uint8_t clock_state, uint8_t sampled_data, uint8_t synthesized_s
 uint8_t sample_input_pin() {
     const uint8_t clock_state = DCF77_Clock::get_clock_state();
     const uint8_t sampled_data =
+        #if defined(__AVR__)
         dcf77_inverted_samples ^ (dcf77_analog_samples? (analogRead(dcf77_analog_sample_pin) > 200)
                                                       : digitalRead(dcf77_sample_pin));
+        #else
+        dcf77_inverted_samples ^ digitalRead(dcf77_sample_pin);
+        #endif
 
     digitalWrite(dcf77_monitor_pin, sampled_data);
-    digitalWrite(dcf77_second_pulse_pin, ms_counter < 500 && clock_state>=DCF77_Clock::locked);
+    digitalWrite(dcf77_second_pulse_pin, ms_counter < 500 && clock_state >= Clock::locked);
 
     const uint8_t synthesized_signal =
-        tick == DCF77::long_tick  ? ms_counter < 200:
-        tick == DCF77::short_tick ? ms_counter < 100:
-        tick == DCF77::sync_mark  ?  0:
-                                           // tick == DCF77::undefined --> default handling
-                                           // allow signal to pass for the first 200ms of each second
-                                          (ms_counter <=200 && sampled_data) ||
-                                           // if the clock has valid time data then undefined ticks
-                                           // are data bits --> first 100ms of signal must be high
-                                           ms_counter <100;
+        tick == Internal::DCF77::long_tick  ? ms_counter < 200:
+        tick == Internal::DCF77::short_tick ? ms_counter < 100:
+        tick == Internal::DCF77::sync_mark  ?  0:
+                                               // tick == DCF77::undefined --> default handling
+                                               // allow signal to pass for the first 200ms of each second
+                                               (ms_counter <=200 && sampled_data) ||
+                                               // if the clock has valid time data then undefined ticks
+                                               // are data bits --> first 100ms of signal must be high
+                                               ms_counter <100;
 
-    set_output<provide_filtered_output, DCF77_Clock::locked,
+    set_output<provide_filtered_output, Clock::locked,
               dcf77_filtered_pin, dcf77_inverted_filtered_pin, dcf77_filter_diff_pin>
               (clock_state, sampled_data, synthesized_signal);
 
-    set_output<provide_semi_synthesized_output, DCF77_Clock::unlocked,
+    set_output<provide_semi_synthesized_output, Clock::unlocked,
                dcf77_semi_synthesized_pin, dcf77_inverted_semi_synthesized_pin, dcf77_semi_synthesized_diff_pin>
                (clock_state, sampled_data, synthesized_signal);
 
-    set_output<provide_synthesized_output, DCF77_Clock::free,
-               dcf77_synthesized_pin, dcf77_inverted_synthesized_pin,  dcf77_synthesized_diff_pin>
+    set_output<provide_synthesized_output, Clock::free,
+               dcf77_synthesized_pin, dcf77_inverted_synthesized_pin, dcf77_synthesized_diff_pin>
                (clock_state, sampled_data, synthesized_signal);
 
-
     ms_counter+= (ms_counter < 1000);
+
+    Serial.print('#');
+    Serial.print(clock_state);
+    Serial.print(digitalRead(dcf77_signal_good_indicator_pin));
+    Serial.print(sampled_data);
+    Serial.print(synthesized_signal);
+    Serial.println(digitalRead(dcf77_synthesized_pin));
 
     return sampled_data;
 }
 
 
-void output_handler(const DCF77_Clock::time_t &decoded_time) {
+void output_handler(const Clock::time_t &decoded_time) {
     // reset ms_counter for 1 Hz ticks
     ms_counter = 0;
 
@@ -111,12 +123,12 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
     //                      always off if signal is bad
     const uint8_t clock_state = DCF77_Clock::get_clock_state();
     digitalWrite(dcf77_signal_good_indicator_pin,
-                 clock_state >= DCF77_Clock::locked  ? 1:
-                 clock_state == DCF77_Clock::unlocked? (decoded_time.second.digit.lo & 0x03) != 0:
-                 clock_state == DCF77_Clock::free    ? (decoded_time.second.digit.lo & 0x03) == 0:
-                                                       0);
+                 clock_state >= Clock::locked  ? 1:
+                 clock_state == Clock::unlocked? (decoded_time.second.digit.lo & 0x03) != 0:
+                 clock_state == Clock::free    ? (decoded_time.second.digit.lo & 0x03) == 0:
+                                                  0);
     // compute output for signal synthesis
-    DCF77::time_data_t now;
+    Internal::DCF77_Encoder now;
     now.second                    = BCD::bcd_to_int(decoded_time.second);
     now.minute                    = decoded_time.minute;
     now.hour                      = decoded_time.hour;
@@ -128,9 +140,9 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
     now.leap_second_scheduled     = decoded_time.leap_second_scheduled;
     now.timezone_change_scheduled = decoded_time.timezone_change_scheduled;
 
-    DCF77_Encoder::advance_minute(now);
 
-    tick = DCF77_Encoder::get_current_signal(now);
+    now.advance_minute();
+    now.get_current_signal();
 }
 
 void setup_serial() {
@@ -138,16 +150,16 @@ void setup_serial() {
 }
 
 void output_splash_screen() {
-    using namespace DCF77_Encoder;
-
     Serial.println();
-    Serial.println(F("DCF77 Superfilter 1.1.0"));
+    Serial.println(F("DCF77 Superfilter 3.0"));
     Serial.println(F("(c) 2015 Udo Klein"));
     Serial.println(F("www.blinkenlight.net"));
     Serial.println();
     Serial.print(F("Sample Pin:               ")); Serial.println(dcf77_sample_pin);
     Serial.print(F("Inverted Mode:            ")); Serial.println(dcf77_inverted_samples);
+    #if defined(__AVR__)
     Serial.print(F("Analog Mode:              ")); Serial.println(dcf77_analog_samples);
+    #endif
     Serial.print(F("Monitor Pin:              ")); Serial.println(dcf77_monitor_pin);
     Serial.println();
 
@@ -227,8 +239,7 @@ void setup() {
 }
 
 void loop() {
-    DCF77_Clock::time_t now;
-
+    Clock::time_t now;
     DCF77_Clock::get_current_time(now);
 
     if (now.month.val > 0) {
