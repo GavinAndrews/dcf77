@@ -247,7 +247,7 @@ namespace Hamming {
         //    low threshold --> if lock is not clean output will be garbled
         //    a proper lock will fix the issue
         //    the question is: which start up behaviour do we prefer?
-        const uint8_t threshold = 2;
+        const uint8_t threshold = 3;
 
         const uint8_t number_of_bins = sizeof(bins.data) / sizeof(bins.data[0]);
         const uint8_t offset = (number_of_bins == 60 || number_of_bins == 24 || number_of_bins == 10)? 0x00: 0x01;
