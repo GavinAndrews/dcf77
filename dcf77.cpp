@@ -1884,7 +1884,7 @@ namespace DCF77_Local_Clock {
     void process_1_Hz_tick(const DCF77::time_data_t &decoded_time) {
         uint8_t quality_factor = DCF77_Clock_Controller::get_overall_quality_factor();
 
-        if (quality_factor > 1) {
+        if (quality_factor > 2) {
             if (clock_state != synced) {
                 DCF77_Clock_Controller::sync_achieved_event_handler();
                 clock_state = synced;
