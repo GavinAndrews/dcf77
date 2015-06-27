@@ -46,8 +46,20 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #ifndef dcf77_h
 #define dcf77_h
 
+#define GAVIN 1
+
 #include <stdint.h>
+
+#ifndef GAVIN
 #include "Arduino.h"
+#else
+
+#endif
+
+#define F(A) A
+
+int SREG;
+
 
 namespace BCD {
     typedef union {

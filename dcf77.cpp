@@ -17,7 +17,43 @@
 //  along with this program. If not, see http://www.gnu.org/licenses/
 
 #include "dcf77.h"
+
+#ifndef GAVIN
 #include <avr/eeprom.h>
+#else
+    #define HEX 1
+#endif
+
+#define DEC 0
+#define BIN 1
+
+class DummySerial {
+public:
+size_t print(const char[]) {};
+    size_t print() {};
+    size_t print(char) {};
+    size_t print(unsigned char, int = DEC) {};
+    size_t print(int, int = DEC) {};
+    size_t print(unsigned int, int = DEC) {};
+    size_t print(long, int = DEC) {};
+    size_t print(unsigned long, int = DEC) {};
+    size_t print(double, int = 2) {};
+
+    size_t println() {};
+    size_t println(char) {};
+    size_t println(unsigned char, int = DEC) {};
+    size_t println(int, int = DEC) {};
+    size_t println(const char& c, int = DEC) {};
+    size_t println(const char c[], int = DEC) {};
+    size_t println(unsigned int, int = DEC) {};
+    size_t println(long, int = DEC) {};
+    size_t println(unsigned long, int = DEC) {};
+    size_t println(double, int = 2) {};
+};
+
+DummySerial Serial;
+
+int cli() { return 0;};
 
 namespace Debug {
     void debug_helper(char data) { Serial.print(data == 0? 'S': data == 1? '?': data - 2 + '0', 0); }
@@ -1107,6 +1143,9 @@ namespace DCF77_Flag_Decoder {
         return leap_second_scheduled > 0;
     }
 
+    uint8_t abs(int8_t summertime) {
+        return  (summertime<0) ? -summertime : summertime;
+    }
 
     void get_quality(uint8_t &uses_summertime_quality,
                      uint8_t &timezone_change_scheduled_quality,
@@ -1115,6 +1154,7 @@ namespace DCF77_Flag_Decoder {
         timezone_change_scheduled_quality = abs(timezone_change_scheduled);
         leap_second_scheduled_quality = abs(leap_second_scheduled);
     }
+
 
     void debug() {
         Serial.print(F("Backup Antenna, TZ change, TZ, Leap scheduled, Date parity: "));
@@ -1241,11 +1281,17 @@ namespace DCF77_Year_Decoder {
         Arithmetic_Tools::maximize(lock_quality.noise_max, decade_lock_quality.noise_max);
     }
 
+    uint8_t min(const uint8_t years, const uint8_t decades);
+
     uint8_t get_quality_factor() {
         const uint8_t qf_years = Hamming::get_quality_factor(bins);
         const uint8_t qf_decades = DCF77_Decade_Decoder::get_quality_factor();
         return min(qf_years, qf_decades);
     }
+
+    uint8_t min(const uint8_t x, const uint8_t y) {
+        return (x>y) ? y : x;
+}
 
     BCD::bcd_t get_year() {
         BCD::bcd_t year = Hamming::get_time_value(bins);
@@ -2899,7 +2945,7 @@ namespace DCF77_Frequency_Control {
     volatile int8_t confirmed_precision = 0;
 
     // indicator if data may be persisted to EEPROM
-    volatile boolean data_pending = false;
+    volatile int data_pending = false;
 
     // 2*tau_max = 32 000 000 centisecond ticks = 5333 minutes
     volatile uint16_t elapsed_minutes;
@@ -2982,6 +3028,10 @@ namespace DCF77_Frequency_Control {
         DCF77_1_Khz_Generator::adjust(total_adjust);
     }
 
+    int8_t abs(int8_t precision) {
+        return (precision<0) ? -precision : precision;
+}
+
     void process_1_Hz_tick(const DCF77::time_data_t &decoded_time) {
         const int16_t deviation_to_trigger_readjust = 5;
 
@@ -3056,36 +3106,16 @@ namespace DCF77_Frequency_Control {
     // ID constants to see if EEPROM has already something stored
     const char ID_u = 'u';
     const char ID_k = 'k';
+
     void persist_to_eeprom(const int8_t precision, const int16_t adjust) {
-        // this is slow, do not call during interrupt handling
-        uint16_t eeprom = eeprom_base;
-        eeprom_write_byte((uint8_t *)(eeprom++), ID_u);
-        eeprom_write_byte((uint8_t *)(eeprom++), ID_k);
-        eeprom_write_byte((uint8_t *)(eeprom++), (uint8_t) precision);
-        eeprom_write_byte((uint8_t *)(eeprom++), (uint8_t) precision);
-        eeprom_write_word((uint16_t *)eeprom, (uint16_t) adjust);
-        eeprom += 2;
-        eeprom_write_word((uint16_t *)eeprom, (uint16_t) adjust);
     }
 
     void read_from_eeprom(int8_t &precision, int16_t &adjust) {
-        uint16_t eeprom = eeprom_base;
-        if (eeprom_read_byte((const uint8_t *)(eeprom++)) == ID_u &&
-            eeprom_read_byte((const uint8_t *)(eeprom++)) == ID_k) {
-            uint8_t ee_precision = eeprom_read_byte((const uint8_t *)(eeprom++));
-            if (ee_precision == eeprom_read_byte((const uint8_t *)(eeprom++))) {
-                const uint16_t ee_adjust = eeprom_read_word((const uint16_t *)eeprom);
-                eeprom += 2;
-                if (ee_adjust == eeprom_read_word((const uint16_t *)eeprom)) {
-                    precision = (int8_t) ee_precision;
-                    adjust = (int16_t) ee_adjust;
-                    return;
-                }
-            }
-        }
         precision = 0;
         adjust = 0;
     }
+
+    int8_t abs(int8_t precision);
 
     // do not call during ISRs
     void auto_persist() {
@@ -3190,6 +3220,20 @@ namespace DCF77_1_Khz_Generator {
         return pp16m;
     }
 
+    int16_t TCCR2B;
+    int16_t TCCR2A;
+    int16_t OCR2A;
+    int16_t TIMSK0;
+
+    int TIMSK2;
+
+#define WGM22 0
+#define WGM21 0
+#define WGM20 0
+#define CS22 0
+    #define OCIE2A 0
+
+
     void init_timer_2() {
         // Timer 2 CTC mode, prescaler 64
         TCCR2B = (0<<WGM22) | (1<<CS22);
@@ -3236,6 +3280,21 @@ namespace DCF77_1_Khz_Generator {
     }
 }
 
-ISR(TIMER2_COMPA_vect) {
+void doIt() {
     DCF77_1_Khz_Generator::isr_handler();
+};
+
+#include <fstream>
+
+int main() {
+
+    std::ifstream infile("output3.csv");
+
+    uint8_t a;
+    while (infile >> a) {
+        for (int j=0; j<10; j++) {
+            DCF77_Clock_Controller::process_1_kHz_tick_data(a);
+        }
+    }
+    return 0;
 }
