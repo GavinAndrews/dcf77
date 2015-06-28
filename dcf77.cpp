@@ -3288,12 +3288,19 @@ void doIt() {
 
 int main() {
 
-    std::ifstream infile("output3.csv");
+    std::ifstream infile("output4.csv");
 
     uint8_t a;
-    while (infile >> a) {
+    std::string line;
+    int i=0;
+    while (infile >> line) {
+        a = atoi(line.c_str());
         for (int j=0; j<10; j++) {
             DCF77_Clock_Controller::process_1_kHz_tick_data(a);
+        }
+        i++;
+        if (i==200) {
+            i=0;
         }
     }
     return 0;
