@@ -47,7 +47,68 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #define dcf77_h
 
 #include <stdint.h>
+
+#ifndef STANDALONE
 #include "Arduino.h"
+#endif
+
+#ifdef STANDALONE
+
+
+#include <stdint.h>
+#include <c++/iostream>
+
+#define boolean int8_t
+#define abs(A) ((A<0)?-A:A)
+#define min(A,B) ((A<B)?A:B)
+#define HEX 1
+#define DEC 0
+#define BIN 1
+
+
+int16_t TCCR2B;
+int16_t TCCR2A;
+int16_t OCR2A;
+int16_t TIMSK0;
+int TIMSK2;
+int SREG;
+
+#define F(A) A
+
+
+#define WGM22 0
+#define WGM21 0
+#define WGM20 0
+#define CS22 0
+#define OCIE2A 0
+
+class DummySerial {
+public:
+    size_t print(const char[]) { };
+    size_t print() { };
+    size_t print(char) { };
+    size_t print(unsigned char, int = DEC) { };
+    size_t print(int, int = DEC) { };
+    size_t print(unsigned int, int = DEC) { };
+    size_t print(long, int = DEC) { };
+    size_t print(unsigned long, int = DEC) { };
+    size_t print(double, int = 2) { };
+    size_t println() { };
+    size_t println(char) { };
+    size_t println(unsigned char, int = DEC) { };
+    size_t println(int, int = DEC) { };
+    size_t println(const char &c, int = DEC) { };
+    size_t println(const char c[], int = DEC) { };
+    size_t println(unsigned int, int = DEC) { };
+    size_t println(long, int = DEC) { };
+    size_t println(unsigned long, int = DEC) { };
+    size_t println(double, int = 2) { };
+};
+
+DummySerial Serial;
+
+int cli() { return 0; };
+#endif
 
 namespace BCD {
     typedef union {

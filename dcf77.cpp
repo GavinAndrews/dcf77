@@ -16,6 +16,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program. If not, see http://www.gnu.org/licenses/
 
+#define STANDALONE 1
+
 #include "dcf77.h"
 
 #define OFFSET_MINUTE_1 (21)
@@ -50,12 +52,12 @@
 #define OFFSET_WEEKDAY_4 (44)
 #define OFFSET_WEEKDAY_PROCESS (45)
 
-#define OFFSET_MONTH_1(45)
-#define OFFSET_MONTH_2(46)
-#define OFFSET_MONTH_4(47)
-#define OFFSET_MONTH_8(48)
-#define OFFSET_MONTH_10(49)
-#define OFFSET_MONTH_PROCESS(50)
+#define OFFSET_MONTH_1 (45)
+#define OFFSET_MONTH_2 (46)
+#define OFFSET_MONTH_4 (47)
+#define OFFSET_MONTH_8 (48)
+#define OFFSET_MONTH_10 (49)
+#define OFFSET_MONTH_PROCESS (50)
 
 #define OFFSET_YEAR_1 (50)
 #define OFFSET_YEAR_2 (51)
@@ -69,8 +71,9 @@
 #define OFFSET_DECADE_8 (57)
 #define OFFSET_DECADE_PROCESS (58)
 
-
+#ifndef STANDALONE
 #include <avr/eeprom.h>
+#endif
 
 namespace Debug {
     void debug_helper(char data) { Serial.print(data == 0? 'S': data == 1? '?': data - 2 + '0', 0); }
@@ -1161,6 +1164,7 @@ namespace DCF77_Flag_Decoder {
     }
 
 
+
     void get_quality(uint8_t &uses_summertime_quality,
                      uint8_t &timezone_change_scheduled_quality,
                      uint8_t &leap_second_scheduled_quality) {
@@ -1537,9 +1541,6 @@ namespace DCF77_Hour_Decoder {
             case OFFSET_HOUR_8: hour_data.val +=  0x8*tick_value; break;
             case OFFSET_HOUR_10: hour_data.val += 0x10*tick_value; break;
             case OFFSET_HOUR_20: hour_data.val += 0x20*tick_value; break;
-
-                ??
-
             case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
                 hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
 
@@ -1604,10 +1605,6 @@ namespace DCF77_Minute_Decoder {
             case OFFSET_MINUTE_40: minute_data.val += 0x40*tick_value; break;
             case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
                 hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
-
-
-                ???
-
             case OFFSET_MINUTE_PROCESS: compute_max_index(bins);
                 // fall through on purpose
             default: minute_data.val = 0;
@@ -3121,6 +3118,7 @@ namespace DCF77_Frequency_Control {
     const char ID_u = 'u';
     const char ID_k = 'k';
     void persist_to_eeprom(const int8_t precision, const int16_t adjust) {
+#ifndef STANDALONE
         // this is slow, do not call during interrupt handling
         uint16_t eeprom = eeprom_base;
         eeprom_write_byte((uint8_t *)(eeprom++), ID_u);
@@ -3130,9 +3128,11 @@ namespace DCF77_Frequency_Control {
         eeprom_write_word((uint16_t *)eeprom, (uint16_t) adjust);
         eeprom += 2;
         eeprom_write_word((uint16_t *)eeprom, (uint16_t) adjust);
+#endif
     }
 
     void read_from_eeprom(int8_t &precision, int16_t &adjust) {
+#ifndef STANDALONE
         uint16_t eeprom = eeprom_base;
         if (eeprom_read_byte((const uint8_t *)(eeprom++)) == ID_u &&
             eeprom_read_byte((const uint8_t *)(eeprom++)) == ID_k) {
@@ -3147,6 +3147,7 @@ namespace DCF77_Frequency_Control {
                 }
             }
         }
+#endif
         precision = 0;
         adjust = 0;
     }
