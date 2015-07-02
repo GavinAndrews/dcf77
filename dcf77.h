@@ -48,10 +48,10 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 #include <stdint.h>
 
-#ifndef STANDALONE
-    #include "Arduino.h"
-#else
+#ifdef STANDALONE
     #include "standalone.h"
+#else
+    #include "Arduino.h"
 #endif
 
 // Constants refering to data in time signal
