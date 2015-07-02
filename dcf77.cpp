@@ -20,57 +20,6 @@
 
 #include "dcf77.h"
 
-#define OFFSET_MINUTE_1 (21)
-#define OFFSET_MINUTE_2 (22)
-#define OFFSET_MINUTE_4 (23)
-#define OFFSET_MINUTE_8 (24)
-#define OFFSET_MINUTE_10 (25)
-#define OFFSET_MINUTE_20 (26)
-#define OFFSET_MINUTE_40 (27)
-#define OFFSET_MINUTE_PARITY (28)
-#define OFFSET_MINUTE_PROCESS (29)
-
-#define OFFSET_HOUR_1 (29)
-#define OFFSET_HOUR_2 (30)
-#define OFFSET_HOUR_4 (31)
-#define OFFSET_HOUR_8 (32)
-#define OFFSET_HOUR_10 (33)
-#define OFFSET_HOUR_20 (34)
-#define OFFSET_HOUR_PARITY (35)
-#define OFFSET_HOUR_PROCESS (36)
-
-#define OFFSET_DAY_1 (36)
-#define OFFSET_DAY_2 (37)
-#define OFFSET_DAY_4 (38)
-#define OFFSET_DAY_8 (39)
-#define OFFSET_DAY_10 (40)
-#define OFFSET_DAY_20 (41)
-#define OFFSET_DAY_PROCESS (42)
-
-#define OFFSET_WEEKDAY_1 (42)
-#define OFFSET_WEEKDAY_2 (43)
-#define OFFSET_WEEKDAY_4 (44)
-#define OFFSET_WEEKDAY_PROCESS (45)
-
-#define OFFSET_MONTH_1 (45)
-#define OFFSET_MONTH_2 (46)
-#define OFFSET_MONTH_4 (47)
-#define OFFSET_MONTH_8 (48)
-#define OFFSET_MONTH_10 (49)
-#define OFFSET_MONTH_PROCESS (50)
-
-#define OFFSET_YEAR_1 (50)
-#define OFFSET_YEAR_2 (51)
-#define OFFSET_YEAR_4 (52)
-#define OFFSET_YEAR_8 (53)
-#define OFFSET_YEAR_PROCESS (54)
-
-#define OFFSET_DECADE_1 (54)
-#define OFFSET_DECADE_2 (55)
-#define OFFSET_DECADE_4 (56)
-#define OFFSET_DECADE_8 (57)
-#define OFFSET_DECADE_PROCESS (58)
-
 #ifndef STANDALONE
 #include <avr/eeprom.h>
 #endif
@@ -1052,46 +1001,46 @@ namespace DCF77_Naive_Bitstream_Decoder {
             case OFFSET_MINUTE_20: now.minute.val += 0x20*naive_value; break;
             case OFFSET_MINUTE_40: now.minute.val += 0x40*naive_value; break;
 
-            case 28: now.hour.val = 0; break;
-            case 29: now.hour.val +=      naive_value; break;
-            case 30: now.hour.val +=  0x2*naive_value; break;
-            case 31: now.hour.val +=  0x4*naive_value; break;
-            case 32: now.hour.val +=  0x8*naive_value; break;
-            case 33: now.hour.val += 0x10*naive_value; break;
-            case 34: now.hour.val += 0x20*naive_value; break;
+            case OFFSET_MINUTE_PARITY: now.hour.val = 0; break;
+            case OFFSET_HOUR_1: now.hour.val +=      naive_value; break;
+            case OFFSET_HOUR_2: now.hour.val +=  0x2*naive_value; break;
+            case OFFSET_HOUR_4: now.hour.val +=  0x4*naive_value; break;
+            case OFFSET_HOUR_8: now.hour.val +=  0x8*naive_value; break;
+            case OFFSET_HOUR_10: now.hour.val += 0x10*naive_value; break;
+            case OFFSET_HOUR_20: now.hour.val += 0x20*naive_value; break;
 
-            case 35:
+            case OFFSET_HOUR_PARITY:
                 now.day.val = 0x00;
                 now.month.val = 0x00;
                 now.year.val = 0x00;
                 now.weekday.val = 0x00;
                 break;
 
-            case 36: now.day.val +=      naive_value; break;
-            case 37: now.day.val +=  0x2*naive_value; break;
-            case 38: now.day.val +=  0x4*naive_value; break;
-            case 39: now.day.val +=  0x8*naive_value; break;
-            case 40: now.day.val += 0x10*naive_value; break;
-            case 41: now.day.val += 0x20*naive_value; break;
+            case OFFSET_DAY_1: now.day.val +=      naive_value; break;
+            case OFFSET_DAY_2: now.day.val +=  0x2*naive_value; break;
+            case OFFSET_DAY_4: now.day.val +=  0x4*naive_value; break;
+            case OFFSET_DAY_8: now.day.val +=  0x8*naive_value; break;
+            case OFFSET_DAY_10: now.day.val += 0x10*naive_value; break;
+            case OFFSET_DAY_20: now.day.val += 0x20*naive_value; break;
 
-            case 42: now.weekday.val +=     naive_value; break;
-            case 43: now.weekday.val += 0x2*naive_value; break;
-            case 44: now.weekday.val += 0x4*naive_value; break;
+            case OFFSET_WEEKDAY_1: now.weekday.val +=     naive_value; break;
+            case OFFSET_WEEKDAY_2: now.weekday.val += 0x2*naive_value; break;
+            case OFFSET_WEEKDAY_4: now.weekday.val += 0x4*naive_value; break;
 
-            case 45: now.month.val +=      naive_value; break;
-            case 46: now.month.val +=  0x2*naive_value; break;
-            case 47: now.month.val +=  0x4*naive_value; break;
-            case 48: now.month.val +=  0x8*naive_value; break;
-            case 49: now.month.val += 0x10*naive_value; break;
+            case OFFSET_MONTH_1: now.month.val +=      naive_value; break;
+            case OFFSET_MONTH_2: now.month.val +=  0x2*naive_value; break;
+            case OFFSET_MONTH_4: now.month.val +=  0x4*naive_value; break;
+            case OFFSET_MONTH_8: now.month.val +=  0x8*naive_value; break;
+            case OFFSET_MONTH_10: now.month.val += 0x10*naive_value; break;
 
-            case 50: now.year.val +=      naive_value; break;
-            case 51: now.year.val +=  0x2*naive_value; break;
-            case 52: now.year.val +=  0x4*naive_value; break;
-            case 53: now.year.val +=  0x8*naive_value; break;
-            case 54: now.year.val += 0x10*naive_value; break;
-            case 55: now.year.val += 0x20*naive_value; break;
-            case 56: now.year.val += 0x40*naive_value; break;
-            case 57: now.year.val += 0x80*naive_value; break;
+            case OFFSET_YEAR_1: now.year.val +=      naive_value; break;
+            case OFFSET_YEAR_2: now.year.val +=  0x2*naive_value; break;
+            case OFFSET_YEAR_4: now.year.val +=  0x4*naive_value; break;
+            case OFFSET_YEAR_8: now.year.val +=  0x8*naive_value; break;
+            case OFFSET_DECADE_1: now.year.val += 0x10*naive_value; break;
+            case OFFSET_DECADE_2: now.year.val += 0x20*naive_value; break;
+            case OFFSET_DECADE_4: now.year.val += 0x40*naive_value; break;
+            case OFFSET_DECADE_8: now.year.val += 0x80*naive_value; break;
         }
     }
 }
@@ -3301,6 +3250,8 @@ namespace DCF77_1_Khz_Generator {
     }
 }
 
+#ifndef STANDALONE
 ISR(TIMER2_COMPA_vect) {
         DCF77_1_Khz_Generator::isr_handler();
 }
+#endif

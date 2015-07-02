@@ -49,66 +49,65 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #include <stdint.h>
 
 #ifndef STANDALONE
-#include "Arduino.h"
+    #include "Arduino.h"
+#else
+    #include "standalone.h"
 #endif
 
-#ifdef STANDALONE
+// Constants refering to data in time signal
 
+// DCF77 Offsets
 
-#include <stdint.h>
-#include <c++/iostream>
+#define OFFSET_MINUTE_1 (21)
+#define OFFSET_MINUTE_2 (22)
+#define OFFSET_MINUTE_4 (23)
+#define OFFSET_MINUTE_8 (24)
+#define OFFSET_MINUTE_10 (25)
+#define OFFSET_MINUTE_20 (26)
+#define OFFSET_MINUTE_40 (27)
+#define OFFSET_MINUTE_PARITY (28)
+#define OFFSET_MINUTE_PROCESS (29)
 
-#define boolean int8_t
-#define abs(A) ((A<0)?-A:A)
-#define min(A,B) ((A<B)?A:B)
-#define HEX 1
-#define DEC 0
-#define BIN 1
+#define OFFSET_HOUR_1 (29)
+#define OFFSET_HOUR_2 (30)
+#define OFFSET_HOUR_4 (31)
+#define OFFSET_HOUR_8 (32)
+#define OFFSET_HOUR_10 (33)
+#define OFFSET_HOUR_20 (34)
+#define OFFSET_HOUR_PARITY (35)
+#define OFFSET_HOUR_PROCESS (36)
 
+#define OFFSET_DAY_1 (36)
+#define OFFSET_DAY_2 (37)
+#define OFFSET_DAY_4 (38)
+#define OFFSET_DAY_8 (39)
+#define OFFSET_DAY_10 (40)
+#define OFFSET_DAY_20 (41)
+#define OFFSET_DAY_PROCESS (42)
 
-int16_t TCCR2B;
-int16_t TCCR2A;
-int16_t OCR2A;
-int16_t TIMSK0;
-int TIMSK2;
-int SREG;
+#define OFFSET_WEEKDAY_1 (42)
+#define OFFSET_WEEKDAY_2 (43)
+#define OFFSET_WEEKDAY_4 (44)
+#define OFFSET_WEEKDAY_PROCESS (45)
 
-#define F(A) A
+#define OFFSET_MONTH_1 (45)
+#define OFFSET_MONTH_2 (46)
+#define OFFSET_MONTH_4 (47)
+#define OFFSET_MONTH_8 (48)
+#define OFFSET_MONTH_10 (49)
+#define OFFSET_MONTH_PROCESS (50)
 
+#define OFFSET_YEAR_1 (50)
+#define OFFSET_YEAR_2 (51)
+#define OFFSET_YEAR_4 (52)
+#define OFFSET_YEAR_8 (53)
+#define OFFSET_YEAR_PROCESS (54)
 
-#define WGM22 0
-#define WGM21 0
-#define WGM20 0
-#define CS22 0
-#define OCIE2A 0
-
-class DummySerial {
-public:
-    size_t print(const char[]) { };
-    size_t print() { };
-    size_t print(char) { };
-    size_t print(unsigned char, int = DEC) { };
-    size_t print(int, int = DEC) { };
-    size_t print(unsigned int, int = DEC) { };
-    size_t print(long, int = DEC) { };
-    size_t print(unsigned long, int = DEC) { };
-    size_t print(double, int = 2) { };
-    size_t println() { };
-    size_t println(char) { };
-    size_t println(unsigned char, int = DEC) { };
-    size_t println(int, int = DEC) { };
-    size_t println(const char &c, int = DEC) { };
-    size_t println(const char c[], int = DEC) { };
-    size_t println(unsigned int, int = DEC) { };
-    size_t println(long, int = DEC) { };
-    size_t println(unsigned long, int = DEC) { };
-    size_t println(double, int = 2) { };
-};
-
-DummySerial Serial;
-
-int cli() { return 0; };
-#endif
+#define OFFSET_DECADE_1 (54)
+#define OFFSET_DECADE_2 (55)
+#define OFFSET_DECADE_4 (56)
+#define OFFSET_DECADE_8 (57)
+#define OFFSET_DECADE_PROCESS (58)
 
 namespace BCD {
     typedef union {

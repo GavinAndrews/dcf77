@@ -7,4 +7,4 @@ set(SOURCE_FILES
     dcf77.cpp
     dcf77.h)
 
-add_executable(dcf77 ${SOURCE_FILES})
+add_executable(dcf77 ${SOURCE_FILES} standalone.h standalone.cpp)
