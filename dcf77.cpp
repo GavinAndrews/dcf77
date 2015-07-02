@@ -2536,6 +2536,78 @@ namespace DCF77_Demodulator {
         Hamming::setup(bins);
     }
 
+#ifdef MSF60
+
+    void decode_400ms(const uint8_t input, const uint8_t bins_to_go) {
+        // will be called for each bin during the "interesting" 400ms
+        // For MSF Signal we detect Miniute Mark by carrier absent for whole 400mS
+        // first 100mS is always HI, then A-bit, then B-bit
+
+        static uint8_t count = 0;
+        static uint8_t decoded_data = 0;
+
+        count += input;
+
+        switch(bins_to_go)
+        {
+            case 38:    // Skip first 20mS, often unreliable
+                count=0;
+                break;
+            case 27:    // First 100mS Pulse, always present except at minute mark
+                decoded_data = count > bins_per_50ms ? 8 : 0;
+                std::cout << "First: " << (int)count;
+                count=0;
+                break;
+            case 20:    // Second 100mS often squished between first and second (PLL slow to unlock)
+                // 70mS region for Pulse A
+                decoded_data += count >= 4 ? 4 : 0;
+                std::cout << "Second: " << (int)count;
+                count=0;
+                break;
+            case 10:    // Third 100mS i.e. Bit B
+                decoded_data += count > bins_per_50ms ? 2 : 0;
+                std::cout << "Third: " << (int)count;
+                count=0;
+                break;
+            case 0:     // Final 100mS to determine if minute mark
+                decoded_data += count > bins_per_50ms ? 1 : 0;
+                std::cout << "Fourth: " << (int)count;
+
+                // Translate four captured bits to something more compatible with existing code
+                if (decoded_data==(1+2+4+8)) {
+                    decoded_data=0;  // Minute Mark
+                    std::cout << "MM" << std::endl;
+                } else if (decoded_data&8 ==0) {
+                    // Missing Initial 100mS
+                    decoded_data=1;
+                    std::cout << "Bad" << std::endl;
+                } else {
+                    std::cout << "Data: "
+                    << (((decoded_data &4) != 0 ) ? "A=1" : "A=0") << ","
+                    << (((decoded_data &2) != 0 ) ? "B=1" : "B=0") << std::endl;
+
+                    uint8_t result = 0;
+                    if ((decoded_data & 4) != 0 ) {
+                        result += 2;
+                    }
+                    if ((decoded_data & 2) != 0 ) {
+                        result += 4;
+                    }
+
+                    decoded_data=result;
+                }
+
+                // pass control further
+                // decoded_data: bit2 (&4) --> B
+                //               bit1 (&2) --> A,
+                //               1 --> badly formed, missing 100mS Start Pulse
+                //               0 --> minute_mark
+                DCF77_Clock_Controller::process_single_tick_data((DCF77::tick_t) decoded_data);
+                break;
+        }
+    }
+
+#else
     void decode_220ms(const uint8_t input, const uint8_t bins_to_go) {
         // will be called for each bin during the "interesting" 220ms
 
@@ -2561,6 +2633,7 @@ namespace DCF77_Demodulator {
             }
         }
     }
+#endif
 
     uint16_t wrap(const uint16_t value) {
         // faster modulo function which avoids division
@@ -2669,7 +2742,11 @@ namespace DCF77_Demodulator {
                 DCF77_Clock_Controller::flush();
 
                 // start processing of bins
+#ifdef MSF60
+                bins_to_process = 4*bins_per_100ms;
+#else
                 bins_to_process = bins_per_200ms + 2*bins_per_10ms;
+#endif
             }
         }
 
@@ -2678,7 +2755,11 @@ namespace DCF77_Demodulator {
 
             // this will be called for each bin in the "interesting" 220ms
             // this is also a good place for a "monitoring hook"
+#ifdef MSF60
+            decode_400ms(input, bins_to_process);
+#else
             decode_220ms(input, bins_to_process);
+#endif
         }
     }
 
