@@ -47,7 +47,67 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #define dcf77_h
 
 #include <stdint.h>
-#include "Arduino.h"
+
+#ifndef STANDALONE
+    #include "Arduino.h"
+#else
+    #include "standalone.h"
+#endif
+
+// Constants refering to data in time signal
+
+// DCF77 Offsets
+
+#define OFFSET_MINUTE_1 (21)
+#define OFFSET_MINUTE_2 (22)
+#define OFFSET_MINUTE_4 (23)
+#define OFFSET_MINUTE_8 (24)
+#define OFFSET_MINUTE_10 (25)
+#define OFFSET_MINUTE_20 (26)
+#define OFFSET_MINUTE_40 (27)
+#define OFFSET_MINUTE_PARITY (28)
+#define OFFSET_MINUTE_PROCESS (29)
+
+#define OFFSET_HOUR_1 (29)
+#define OFFSET_HOUR_2 (30)
+#define OFFSET_HOUR_4 (31)
+#define OFFSET_HOUR_8 (32)
+#define OFFSET_HOUR_10 (33)
+#define OFFSET_HOUR_20 (34)
+#define OFFSET_HOUR_PARITY (35)
+#define OFFSET_HOUR_PROCESS (36)
+
+#define OFFSET_DAY_1 (36)
+#define OFFSET_DAY_2 (37)
+#define OFFSET_DAY_4 (38)
+#define OFFSET_DAY_8 (39)
+#define OFFSET_DAY_10 (40)
+#define OFFSET_DAY_20 (41)
+#define OFFSET_DAY_PROCESS (42)
+
+#define OFFSET_WEEKDAY_1 (42)
+#define OFFSET_WEEKDAY_2 (43)
+#define OFFSET_WEEKDAY_4 (44)
+#define OFFSET_WEEKDAY_PROCESS (45)
+
+#define OFFSET_MONTH_1 (45)
+#define OFFSET_MONTH_2 (46)
+#define OFFSET_MONTH_4 (47)
+#define OFFSET_MONTH_8 (48)
+#define OFFSET_MONTH_10 (49)
+#define OFFSET_MONTH_PROCESS (50)
+
+#define OFFSET_YEAR_1 (50)
+#define OFFSET_YEAR_2 (51)
+#define OFFSET_YEAR_4 (52)
+#define OFFSET_YEAR_8 (53)
+#define OFFSET_YEAR_PROCESS (54)
+
+#define OFFSET_DECADE_1 (54)
+#define OFFSET_DECADE_2 (55)
+#define OFFSET_DECADE_4 (56)
+#define OFFSET_DECADE_8 (57)
+#define OFFSET_DECADE_PROCESS (58)
 
 namespace BCD {
     typedef union {
