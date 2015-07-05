@@ -17,6 +17,7 @@
 //  along with this program. If not, see http://www.gnu.org/licenses/
 
 #define STANDALONE 1
+#define MSF60 1
 
 #include "dcf77.h"
 
@@ -675,6 +676,8 @@ namespace DCF77_Encoder {
             case 0:  // start of minute
                 return short_tick;
 
+#ifndef MSF60
+
             case 15:
                 if (now.undefined_abnormal_transmitter_operation_output) { return undefined; }
                 result = now.abnormal_transmitter_operation; break;
@@ -696,6 +699,7 @@ namespace DCF77_Encoder {
 
             case 20:  // start of time information
                 return long_tick;
+#endif
 
             case OFFSET_MINUTE_1:
                 if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
@@ -963,6 +967,9 @@ namespace DCF77_Naive_Bitstream_Decoder {
         now.second = second;
 
         switch (second) {
+
+#ifndef MSF60
+
             case 15: now.abnormal_transmitter_operation = naive_value; break;
             case 16: now.timezone_change_scheduled      = naive_value; break;
 
@@ -992,6 +999,8 @@ namespace DCF77_Naive_Bitstream_Decoder {
                 now.minute.val = 0x00;
                 now.undefined_minute_output = false;
                 break;
+
+#endif
 
             case OFFSET_MINUTE_1: now.minute.val +=      naive_value; break;
             case OFFSET_MINUTE_2: now.minute.val +=  0x2*naive_value; break;
@@ -2550,39 +2559,36 @@ namespace DCF77_Demodulator {
 
         switch(bins_to_go)
         {
-            case 38:    // Skip first 20mS, often unreliable
-                count=0;
-                break;
-            case 27:    // First 100mS Pulse, always present except at minute mark
+            case 30:    // First 100mS Pulse, always present except at minute mark
                 decoded_data = count > bins_per_50ms ? 8 : 0;
                 std::cout << "First: " << (int)count;
                 count=0;
                 break;
             case 20:    // Second 100mS often squished between first and second (PLL slow to unlock)
-                // 70mS region for Pulse A
-                decoded_data += count >= 4 ? 4 : 0;
-                std::cout << "Second: " << (int)count;
+                decoded_data += count >= bins_per_50ms ? 4 : 0;
+                std::cout << " Second: " << (int)count;
                 count=0;
                 break;
             case 10:    // Third 100mS i.e. Bit B
                 decoded_data += count > bins_per_50ms ? 2 : 0;
-                std::cout << "Third: " << (int)count;
+                std::cout << " Third: " << (int)count;
                 count=0;
                 break;
             case 0:     // Final 100mS to determine if minute mark
+                std::cout << " Fourth: " << (int)count;
                 decoded_data += count > bins_per_50ms ? 1 : 0;
-                std::cout << "Fourth: " << (int)count;
+                count=0;
 
                 // Translate four captured bits to something more compatible with existing code
                 if (decoded_data==(1+2+4+8)) {
                     decoded_data=0;  // Minute Mark
-                    std::cout << "MM" << std::endl;
+                    std::cout << " MM" << std::endl;
                 } else if (decoded_data&8 ==0) {
                     // Missing Initial 100mS
                     decoded_data=1;
-                    std::cout << "Bad" << std::endl;
+                    std::cout << " Bad" << std::endl;
                 } else {
-                    std::cout << "Data: "
+                    std::cout << " Data: "
                     << (((decoded_data &4) != 0 ) ? "A=1" : "A=0") << ","
                     << (((decoded_data &2) != 0 ) ? "B=1" : "B=0") << std::endl;
 
