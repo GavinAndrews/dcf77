@@ -58,6 +58,8 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 // DCF77 Offsets
 
+#ifndef MSF60
+
 #define OFFSET_MINUTE_1 (21)
 #define OFFSET_MINUTE_2 (22)
 #define OFFSET_MINUTE_4 (23)
@@ -108,6 +110,62 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #define OFFSET_DECADE_4 (56)
 #define OFFSET_DECADE_8 (57)
 #define OFFSET_DECADE_PROCESS (58)
+
+#else
+
+#define OFFSET_MINUTE_1 (51)
+#define OFFSET_MINUTE_2 (50)
+#define OFFSET_MINUTE_4 (49)
+#define OFFSET_MINUTE_8 (48)
+#define OFFSET_MINUTE_10 (47)
+#define OFFSET_MINUTE_20 (46)
+#define OFFSET_MINUTE_40 (45)
+#define OFFSET_MINUTE_PARITY (255)
+#define OFFSET_MINUTE_PROCESS (58)
+
+#define OFFSET_HOUR_1 (44)
+#define OFFSET_HOUR_2 (43)
+#define OFFSET_HOUR_4 (42)
+#define OFFSET_HOUR_8 (41)
+#define OFFSET_HOUR_10 (40)
+#define OFFSET_HOUR_20 (39)
+#define OFFSET_HOUR_PARITY (254)
+#define OFFSET_HOUR_PROCESS (58)
+
+#define OFFSET_DAY_1 (35)
+#define OFFSET_DAY_2 (34)
+#define OFFSET_DAY_4 (33)
+#define OFFSET_DAY_8 (32)
+#define OFFSET_DAY_10 (31)
+#define OFFSET_DAY_20 (30)
+#define OFFSET_DAY_PROCESS (36)
+
+#define OFFSET_WEEKDAY_1 (38)
+#define OFFSET_WEEKDAY_2 (37)
+#define OFFSET_WEEKDAY_4 (36)
+#define OFFSET_WEEKDAY_PROCESS (39)
+
+#define OFFSET_MONTH_1 (29)
+#define OFFSET_MONTH_2 (28)
+#define OFFSET_MONTH_4 (27)
+#define OFFSET_MONTH_8 (26)
+#define OFFSET_MONTH_10 (25)
+#define OFFSET_MONTH_PROCESS (30)
+
+#define OFFSET_YEAR_1 (24)
+#define OFFSET_YEAR_2 (23)
+#define OFFSET_YEAR_4 (22)
+#define OFFSET_YEAR_8 (21)
+#define OFFSET_YEAR_PROCESS (25)
+
+#define OFFSET_DECADE_1 (20)
+#define OFFSET_DECADE_2 (19)
+#define OFFSET_DECADE_4 (18)
+#define OFFSET_DECADE_8 (17)
+#define OFFSET_DECADE_PROCESS (21)
+
+#endif
+
 
 namespace BCD {
     typedef union {
