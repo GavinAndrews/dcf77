@@ -268,12 +268,24 @@ namespace DCF77_Clock {
 }
 
 namespace DCF77 {
+
+#ifdef MSF60
+    typedef enum {
+        min_marker = 5,
+        undefined  = 4,
+        A1_B1      = 3,
+        A1_B0      = 2,
+        A0_B1      = 1,
+        A0_B0      = 0
+    } tick_t;
+#else
     typedef enum {
         long_tick  = 3,
         short_tick = 2,
         undefined  = 1,
         sync_mark  = 0
     } tick_t;
+#endif
 
     typedef struct {
         uint8_t byte_0;  // bit 16-20  // flags
@@ -283,6 +295,13 @@ namespace DCF77 {
         uint8_t byte_4;  // bit 45-52  // month + bit 0-2 of year
         uint8_t byte_5;  // bit 52-58  // year + parity
     } serialized_clock_stream;
+
+#ifdef MSF60
+    typedef struct {
+        serialized_clock_stream A;
+        serialized_clock_stream B;
+    } serialized_clock_stream_pair;
+#endif
 
     typedef struct {
         BCD::bcd_t year;     // 0..99
@@ -301,6 +320,13 @@ namespace DCF77 {
         bool undefined_uses_summertime_output               : 1;
         bool undefined_abnormal_transmitter_operation_output: 1;
         bool undefined_timezone_change_scheduled_output     : 1;
+
+#ifdef MSF60
+        bool undefined_year_output          : 1;
+        bool undefined_day_output           : 1;
+        bool undefined_weekday_output       : 1;
+        bool undefined_time_output          : 1;
+#endif
     } time_data_t;
 
     typedef void (*output_handler_t)(const DCF77::time_data_t &decoded_time);
