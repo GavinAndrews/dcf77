@@ -17,59 +17,9 @@
 //  along with this program. If not, see http://www.gnu.org/licenses/
 
 #define STANDALONE 1
+#define MSF60 1
 
 #include "dcf77.h"
-
-#define OFFSET_MINUTE_1 (21)
-#define OFFSET_MINUTE_2 (22)
-#define OFFSET_MINUTE_4 (23)
-#define OFFSET_MINUTE_8 (24)
-#define OFFSET_MINUTE_10 (25)
-#define OFFSET_MINUTE_20 (26)
-#define OFFSET_MINUTE_40 (27)
-#define OFFSET_MINUTE_PARITY (28)
-#define OFFSET_MINUTE_PROCESS (29)
-
-#define OFFSET_HOUR_1 (29)
-#define OFFSET_HOUR_2 (30)
-#define OFFSET_HOUR_4 (31)
-#define OFFSET_HOUR_8 (32)
-#define OFFSET_HOUR_10 (33)
-#define OFFSET_HOUR_20 (34)
-#define OFFSET_HOUR_PARITY (35)
-#define OFFSET_HOUR_PROCESS (36)
-
-#define OFFSET_DAY_1 (36)
-#define OFFSET_DAY_2 (37)
-#define OFFSET_DAY_4 (38)
-#define OFFSET_DAY_8 (39)
-#define OFFSET_DAY_10 (40)
-#define OFFSET_DAY_20 (41)
-#define OFFSET_DAY_PROCESS (42)
-
-#define OFFSET_WEEKDAY_1 (42)
-#define OFFSET_WEEKDAY_2 (43)
-#define OFFSET_WEEKDAY_4 (44)
-#define OFFSET_WEEKDAY_PROCESS (45)
-
-#define OFFSET_MONTH_1 (45)
-#define OFFSET_MONTH_2 (46)
-#define OFFSET_MONTH_4 (47)
-#define OFFSET_MONTH_8 (48)
-#define OFFSET_MONTH_10 (49)
-#define OFFSET_MONTH_PROCESS (50)
-
-#define OFFSET_YEAR_1 (50)
-#define OFFSET_YEAR_2 (51)
-#define OFFSET_YEAR_4 (52)
-#define OFFSET_YEAR_8 (53)
-#define OFFSET_YEAR_PROCESS (54)
-
-#define OFFSET_DECADE_1 (54)
-#define OFFSET_DECADE_2 (55)
-#define OFFSET_DECADE_4 (56)
-#define OFFSET_DECADE_8 (57)
-#define OFFSET_DECADE_PROCESS (58)
 
 #ifndef STANDALONE
 #include <avr/eeprom.h>
@@ -713,6 +663,214 @@ namespace DCF77_Encoder {
         }
     }
 
+#ifdef MSF60
+    DCF77::tick_t get_current_signal(const DCF77::time_data_t &now) {
+        using namespace Arithmetic_Tools;
+
+        // With MSF signal two data bits are transmitted per second
+        bool result_A;
+        bool result_B;
+
+        switch (now.second) {
+            case 0:  // start of minute
+                return min_marker; break;
+
+            case 1 ... 16:  // DUT1 data we can not compute
+                return undefined; break;
+
+            case OFFSET_DECADE_8:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.hi & 0x8;
+                result_B = 0; break;
+            case OFFSET_DECADE_4:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.hi & 0x4;
+                result_B = 0; break;
+            case OFFSET_DECADE_2:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.hi & 0x2;
+                result_B = 0; break;
+            case OFFSET_DECADE_1:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.hi & 0x1;
+                result_B = 0; break;
+            case OFFSET_YEAR_8:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.lo & 0x8;
+                result_B = 0; break;
+            case OFFSET_YEAR_4:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.lo & 0x4;
+                result_B = 0; break;
+            case OFFSET_YEAR_2:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.lo & 0x2;
+                result_B = 0; break;
+            case OFFSET_YEAR_1:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = now.year.digit.lo & 0x1;
+                result_B = 0; break;
+
+            case OFFSET_MONTH_10:
+                if (now.undefined_day_output || now.month.val > 0x12) { return undefined; }
+                result_A = now.month.digit.hi & 0x1;
+                result_B = 0; break;
+            case OFFSET_MONTH_8:
+                if (now.undefined_day_output || now.month.val > 0x12) { return undefined; }
+                result_A = now.month.digit.lo & 0x8;
+                result_B = 0; break;
+            case OFFSET_MONTH_4:
+                if (now.undefined_day_output || now.month.val > 0x12) { return undefined; }
+                result_A = now.month.digit.lo & 0x4;
+                result_B = 0; break;
+            case OFFSET_MONTH_2:
+                if (now.undefined_day_output || now.month.val > 0x12) { return undefined; }
+                result_A = now.month.digit.lo & 0x2;
+                result_B = 0; break;
+            case OFFSET_MONTH_1:
+                if (now.undefined_day_output || now.month.val > 0x12) { return undefined; }
+                result_A = now.month.digit.lo & 0x1;
+                result_B = 0; break;
+
+            case OFFSET_DAY_20:
+                if (now.undefined_day_output || now.day.val > 0x31) { return undefined; }
+                result_A = now.day.digit.hi & 0x2; break;
+                result_B = 0;
+            case OFFSET_DAY_10:
+                if (now.undefined_day_output || now.day.val > 0x31) { return undefined; }
+                result_A = now.day.digit.hi & 0x1;
+                result_B = 0; break;
+            case OFFSET_DAY_8:
+                if (now.undefined_day_output || now.day.val > 0x31) { return undefined; }
+                result_A = now.day.digit.lo & 0x8;
+                result_B = 0; break;
+            case OFFSET_DAY_4:
+                if (now.undefined_day_output || now.day.val > 0x31) { return undefined; }
+                result_A = now.day.digit.lo & 0x4;
+                result_B = 0; break;
+            case OFFSET_DAY_2:
+                if (now.undefined_day_output || now.day.val > 0x31) { return undefined; }
+                result_A = now.day.digit.lo & 0x2;;
+                result_B = 0; break;
+            case OFFSET_DAY_1:
+                if (now.undefined_day_output || now.day.val > 0x31) { return undefined; }
+                result_A = now.day.digit.lo & 0x1;
+                result_B = 0; break;
+
+            case OFFSET_WEEKDAY_4:
+                if (now.undefined_weekday_output || now.weekday.val > 0x7) { return undefined; }
+                result_A = now.weekday.val & 0x4;
+                result_B = 0; break;
+            case OFFSET_WEEKDAY_2:
+                if (now.undefined_weekday_output || now.weekday.val > 0x7) { return undefined; }
+                result_A = now.weekday.val & 0x2;
+                result_B = 0; break;
+            case OFFSET_WEEKDAY_1:
+                if (now.undefined_weekday_output || now.weekday.val > 0x7) { return undefined; }
+                result_A = now.weekday.val & 0x1;
+                result_B = 0; break;
+
+            case OFFSET_HOUR_20:
+                if (now.undefined_time_output || now.hour.val > 0x23) { return undefined; }
+                result_A = now.hour.digit.hi & 0x2;
+                result_B = 0; break;
+            case OFFSET_HOUR_10:
+                if (now.undefined_time_output || now.hour.val > 0x23) { return undefined; }
+                result_A = now.hour.digit.hi & 0x1;
+                result_B = 0; break;
+            case OFFSET_HOUR_8:
+                if (now.undefined_time_output || now.hour.val > 0x23) { return undefined; }
+                result_A = now.hour.digit.lo & 0x8;
+                result_B = 0; break;
+            case OFFSET_HOUR_4:
+                if (now.undefined_time_output || now.hour.val > 0x23) { return undefined; }
+                result_A = now.hour.digit.lo & 0x4;
+                result_B = 0; break;
+            case OFFSET_HOUR_2:
+                if (now.undefined_time_output || now.hour.val > 0x23) { return undefined; }
+                result_A = now.hour.digit.lo & 0x2;
+                result_B = 0; break;
+            case OFFSET_HOUR_1:
+                if (now.undefined_time_output || now.hour.val > 0x23) { return undefined; }
+                result_A = now.hour.digit.lo & 0x1;
+                result_B = 0; break;
+
+            case OFFSET_MINUTE_40:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.hi & 0x4;
+                result_B = 0; break;
+            case OFFSET_MINUTE_20:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.hi & 0x2;
+                result_B = 0; break;
+            case OFFSET_MINUTE_10:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.hi & 0x1;
+                result_B = 0; break;
+            case OFFSET_MINUTE_8:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.lo & 0x8;
+                result_B = 0; break;
+            case OFFSET_MINUTE_4:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.lo & 0x4;
+                result_B = 0; break;
+            case OFFSET_MINUTE_2:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.lo & 0x2;
+                result_B = 0; break;
+            case OFFSET_MINUTE_1:
+                if (now.undefined_time_output || now.minute.val > 0x59) { return undefined; }
+                result_A = now.minute.digit.lo & 0x1;
+                result_B = 0; break;
+
+            case 52:
+                result_A = 0; result_B = 0; break;
+
+            case 53:
+                if (now.undefined_timezone_change_scheduled_output) { return undefined; }
+                result_A = 1;
+                result_B = now.timezone_change_scheduled; break;
+
+            case 54:
+                if (now.undefined_year_output || now.year.val > 0x99) { return undefined; }
+                result_A = 1;
+                result_B = !parity(now.year.val); break;
+            case 55:
+                if (now.undefined_day_output || now.month.val > 0x12 || now.day.val > 0x31) { return undefined; }
+                result_A = 1;
+                result_B = !(parity(now.month.digit.hi) ^
+                             parity(now.month.digit.lo) ^
+                             parity(now.day.digit.hi) ^
+                             parity(now.day.digit.lo)); break;
+            case 56:
+                if (now.undefined_weekday_output || now.weekday.val > 0x07) { return undefined; }
+                result_A = 1;
+                result_B = !parity(now.weekday.val); break;
+            case 57:
+                if (now.undefined_time_output || now.hour.val > 0x23 || now.minute.val > 0x59) { return undefined; }
+                result_A = 1;
+                result_B = !(parity(now.hour.digit.hi) ^
+                             parity(now.hour.digit.lo) ^
+                             parity(now.minute.digit.hi) ^
+                             parity(now.minute.digit.lo)); break;
+
+            case 58:
+                if (now.undefined_uses_summertime_output) {return undefined; }
+                result_A = 1;
+                result_B = now.uses_summertime; break;
+
+            case 59:
+                result_A = 0; result_B = 0; break;
+
+            default:
+                return undefined;
+        }
+
+        return ((DCF77::tick_t)(result_A<<1 + result_B));
+    }
+
+#else
     DCF77::tick_t get_current_signal(const DCF77::time_data_t &now) {
         using namespace Arithmetic_Tools;
 
@@ -900,6 +1058,9 @@ namespace DCF77_Encoder {
 
         return result? long_tick: short_tick;
     }
+#endif
+
+#ifndef MSF60
 
     void get_serialized_clock_stream(const DCF77::time_data_t &now, DCF77::serialized_clock_stream &data) {
         using namespace Arithmetic_Tools;
@@ -936,6 +1097,63 @@ namespace DCF77_Encoder {
         // bit 53-58  // year + parity
         data.byte_5 = set_bit(now.year.val>>3, 5, date_parity);
     }
+
+#else
+
+    void get_serialized_clock_stream(const DCF77::time_data_t &now, DCF77::serialized_clock_stream_pair &data) {
+        using namespace Arithmetic_Tools;
+
+        const uint8_t reverse_day = reverse(now.day.val);
+        const uint8_t reverse_hour = reverse(now.hour.val);
+        const uint8_t reverse_min = reverse(now.minute.val);
+
+        // byte_0A:	bit 17-24	// year
+        // byte_1A:	bit 25-32	// month + bit 0-2 day
+        // byte_2A:	bit 33-40	// bit 3-5 day + weekday + bit 0-1 hour
+        // byte_3A:	bit 41-48	// bit 2-5 hour + bit 0-3 minute
+        // byte_4A:	bit 49-56	// bit 4-6 minute + 11110
+        // byte_5A:	bit 57-59	// 011
+
+        // bit A 17-24
+        data.A.byte_0 = reverse(now.year.val);
+        // bit A 25-32
+        data.A.byte_1 = reverse(now.month.val)>>3 | reverse_day<<3;
+        // bit A 33-40
+        data.A.byte_2 = reverse_day>>5 | reverse(now.weekday.val)>>2 | reverse_hour<<4;
+        // bit A 41-48
+        data.A.byte_3 = reverse_hour>>4 | reverse_min<<3;
+        // bit A 49-56
+        data.A.byte_4 = reverse_min>>5 | 0b01111110<<3;
+        // bit A 57-59
+        data.A.byte_5 = 0b01111110>>5;
+
+        // byte_0B:	bit 17-24   // 0
+        // byte_1B:	bit 25-32	// 0
+        // byte_2B:	bit 33-40	// 0
+        // byte_3B:	bit 41-48	// 0
+        // byte_4B:	bit 49-56	// 0000 + flags + parity
+        // byte_5B:	bit 57-59	// flags + parity + 0
+
+        data.B.byte_0 = 0;
+        data.B.byte_1 = 0;
+        data.B.byte_2 = 0;
+        data.B.byte_3 = 0;
+
+
+        // bit B 53-58 // flags and parity
+        data.B.byte_4 = set_bit(0, 4, now.timezone_change_scheduled);
+        data.B.byte_4 = set_bit(data.B.byte_4, 5, !parity(now.year.val));
+        data.B.byte_4 = set_bit(data.B.byte_4, 6, !parity(now.day.val));
+        data.B.byte_4 = set_bit(data.B.byte_4, 7, !parity(now.weekday.val));
+        const uint8_t time_parity =	!(parity(now.hour.digit.hi) ^
+                                         parity(now.hour.digit.lo) ^
+                                         parity(now.minute.digit.hi) ^
+                                         parity(now.minute.digit.lo));
+        data.B.byte_5 = set_bit(0, 0, time_parity);
+        data.B.byte_5 = set_bit(data.B.byte_5, 1, now.uses_summertime);
+    }
+
+#endif
 
     void debug(const DCF77::time_data_t &clock) {
         using namespace Debug;
@@ -1004,6 +1222,8 @@ namespace DCF77_Encoder {
 namespace DCF77_Naive_Bitstream_Decoder {
     using namespace DCF77;
 
+#ifndef MSF60
+
     void set_bit(const uint8_t second, const uint8_t value, time_data_t &now) {
         // The naive value is a way to guess a value for unclean decoded data.
         // It is obvious that this is not necessarily a good value but better
@@ -1014,6 +1234,8 @@ namespace DCF77_Naive_Bitstream_Decoder {
         now.second = second;
 
         switch (second) {
+
+
             case 15: now.abnormal_transmitter_operation = naive_value; break;
             case 16: now.timezone_change_scheduled      = naive_value; break;
 
@@ -1052,48 +1274,120 @@ namespace DCF77_Naive_Bitstream_Decoder {
             case OFFSET_MINUTE_20: now.minute.val += 0x20*naive_value; break;
             case OFFSET_MINUTE_40: now.minute.val += 0x40*naive_value; break;
 
-            case 28: now.hour.val = 0; break;
-            case 29: now.hour.val +=      naive_value; break;
-            case 30: now.hour.val +=  0x2*naive_value; break;
-            case 31: now.hour.val +=  0x4*naive_value; break;
-            case 32: now.hour.val +=  0x8*naive_value; break;
-            case 33: now.hour.val += 0x10*naive_value; break;
-            case 34: now.hour.val += 0x20*naive_value; break;
+            case OFFSET_MINUTE_PARITY: now.hour.val = 0; break;
+            case OFFSET_HOUR_1: now.hour.val +=      naive_value; break;
+            case OFFSET_HOUR_2: now.hour.val +=  0x2*naive_value; break;
+            case OFFSET_HOUR_4: now.hour.val +=  0x4*naive_value; break;
+            case OFFSET_HOUR_8: now.hour.val +=  0x8*naive_value; break;
+            case OFFSET_HOUR_10: now.hour.val += 0x10*naive_value; break;
+            case OFFSET_HOUR_20: now.hour.val += 0x20*naive_value; break;
 
-            case 35:
+            case OFFSET_HOUR_PARITY:
                 now.day.val = 0x00;
                 now.month.val = 0x00;
                 now.year.val = 0x00;
                 now.weekday.val = 0x00;
                 break;
 
-            case 36: now.day.val +=      naive_value; break;
-            case 37: now.day.val +=  0x2*naive_value; break;
-            case 38: now.day.val +=  0x4*naive_value; break;
-            case 39: now.day.val +=  0x8*naive_value; break;
-            case 40: now.day.val += 0x10*naive_value; break;
-            case 41: now.day.val += 0x20*naive_value; break;
+            case OFFSET_DAY_1: now.day.val +=      naive_value; break;
+            case OFFSET_DAY_2: now.day.val +=  0x2*naive_value; break;
+            case OFFSET_DAY_4: now.day.val +=  0x4*naive_value; break;
+            case OFFSET_DAY_8: now.day.val +=  0x8*naive_value; break;
+            case OFFSET_DAY_10: now.day.val += 0x10*naive_value; break;
+            case OFFSET_DAY_20: now.day.val += 0x20*naive_value; break;
 
-            case 42: now.weekday.val +=     naive_value; break;
-            case 43: now.weekday.val += 0x2*naive_value; break;
-            case 44: now.weekday.val += 0x4*naive_value; break;
+            case OFFSET_WEEKDAY_1: now.weekday.val +=     naive_value; break;
+            case OFFSET_WEEKDAY_2: now.weekday.val += 0x2*naive_value; break;
+            case OFFSET_WEEKDAY_4: now.weekday.val += 0x4*naive_value; break;
 
-            case 45: now.month.val +=      naive_value; break;
-            case 46: now.month.val +=  0x2*naive_value; break;
-            case 47: now.month.val +=  0x4*naive_value; break;
-            case 48: now.month.val +=  0x8*naive_value; break;
-            case 49: now.month.val += 0x10*naive_value; break;
+            case OFFSET_MONTH_1: now.month.val +=      naive_value; break;
+            case OFFSET_MONTH_2: now.month.val +=  0x2*naive_value; break;
+            case OFFSET_MONTH_4: now.month.val +=  0x4*naive_value; break;
+            case OFFSET_MONTH_8: now.month.val +=  0x8*naive_value; break;
+            case OFFSET_MONTH_10: now.month.val += 0x10*naive_value; break;
 
-            case 50: now.year.val +=      naive_value; break;
-            case 51: now.year.val +=  0x2*naive_value; break;
-            case 52: now.year.val +=  0x4*naive_value; break;
-            case 53: now.year.val +=  0x8*naive_value; break;
-            case 54: now.year.val += 0x10*naive_value; break;
-            case 55: now.year.val += 0x20*naive_value; break;
-            case 56: now.year.val += 0x40*naive_value; break;
-            case 57: now.year.val += 0x80*naive_value; break;
+            case OFFSET_YEAR_1: now.year.val +=      naive_value; break;
+            case OFFSET_YEAR_2: now.year.val +=  0x2*naive_value; break;
+            case OFFSET_YEAR_4: now.year.val +=  0x4*naive_value; break;
+            case OFFSET_YEAR_8: now.year.val +=  0x8*naive_value; break;
+            case OFFSET_DECADE_1: now.year.val += 0x10*naive_value; break;
+            case OFFSET_DECADE_2: now.year.val += 0x20*naive_value; break;
+            case OFFSET_DECADE_4: now.year.val += 0x40*naive_value; break;
+            case OFFSET_DECADE_8: now.year.val += 0x80*naive_value; break;
         }
     }
+
+#else
+
+    void set_bit(const uint8_t second, const uint8_t value, time_data_t &now) {
+        // The naive value is a way to guess a value for unclean decoded data.
+        // It is obvious that this is not necessarily a good value but better
+        // than nothing.
+        const bool naive_value = (value == A1_B0 || value == A1_B1 || value == undefined)? 1: 0;
+        const bool naive_value_B = (value == A0_B1 || value == A1_B1 || value == undefined)? 1: 0;
+        const bool is_value_bad = value != A0_B1 && value != A1_B1 && value != A0_B0 && value != A0_B1;
+
+        now.second = second;
+
+        switch (second) {
+            case 16: now.year.val = 0x00; now.undefined_year_output = false; break;
+
+            case OFFSET_DECADE_8: now.year.val += 0x80*naive_value; break;
+            case OFFSET_DECADE_4: now.year.val += 0x40*naive_value; break;
+            case OFFSET_DECADE_2: now.year.val += 0x20*naive_value; break;
+            case OFFSET_DECADE_1: now.year.val += 0x10*naive_value; break;
+
+            case OFFSET_YEAR_8: now.year.val +=  0x8*naive_value; break;
+            case OFFSET_YEAR_4: now.year.val +=  0x4*naive_value; break;
+            case OFFSET_YEAR_2: now.year.val +=  0x2*naive_value; break;
+            case OFFSET_YEAR_1: now.year.val +=      naive_value;
+                now.month.val = 0x00; now.undefined_day_output = false; break;
+
+            case OFFSET_MONTH_10: now.month.val += 0x10*naive_value; break;
+            case OFFSET_MONTH_8: now.month.val +=  0x8*naive_value; break;
+            case OFFSET_MONTH_4: now.month.val +=  0x4*naive_value; break;
+            case OFFSET_MONTH_2: now.month.val +=  0x2*naive_value; break;
+            case OFFSET_MONTH_1: now.month.val +=      naive_value;
+                now.day.val = 0x00; break;
+
+            case OFFSET_DAY_20: now.day.val += 0x20*naive_value; break;
+            case OFFSET_DAY_10: now.day.val += 0x10*naive_value; break;
+            case OFFSET_DAY_8: now.day.val +=  0x8*naive_value; break;
+            case OFFSET_DAY_4: now.day.val +=  0x4*naive_value; break;
+            case OFFSET_DAY_2: now.day.val +=  0x2*naive_value; break;
+            case OFFSET_DAY_1: now.day.val +=      naive_value;
+                now.weekday.val = 0x00; now.undefined_weekday_output = false; break;
+
+            case OFFSET_WEEKDAY_4: now.weekday.val += 0x4*naive_value; break;
+            case OFFSET_WEEKDAY_2: now.weekday.val += 0x2*naive_value; break;
+            case OFFSET_WEEKDAY_1: now.weekday.val +=     naive_value;
+                now.hour.val = 0; now.undefined_time_output = false; break;
+
+            case OFFSET_HOUR_20: now.hour.val += 0x20*naive_value; break;
+            case OFFSET_HOUR_10: now.hour.val += 0x10*naive_value; break;
+            case OFFSET_HOUR_8: now.hour.val +=  0x8*naive_value; break;
+            case OFFSET_HOUR_4: now.hour.val +=  0x4*naive_value; break;
+            case OFFSET_HOUR_2: now.hour.val +=  0x2*naive_value; break;
+            case OFFSET_HOUR_1: now.hour.val +=      naive_value;
+                now.minute.val = 0x00; break;
+
+            case OFFSET_MINUTE_40: now.minute.val += 0x40*naive_value; break;
+            case OFFSET_MINUTE_20: now.minute.val += 0x20*naive_value; break;
+            case OFFSET_MINUTE_10: now.minute.val += 0x10*naive_value; break;
+            case OFFSET_MINUTE_8: now.minute.val +=  0x8*naive_value; break;
+            case OFFSET_MINUTE_4: now.minute.val +=  0x4*naive_value; break;
+            case OFFSET_MINUTE_2: now.minute.val +=  0x2*naive_value; break;
+            case OFFSET_MINUTE_1: now.minute.val +=      naive_value; break;
+
+            case 53: now.timezone_change_scheduled = naive_value_B;
+                now.undefined_timezone_change_scheduled_output = is_value_bad; break;
+
+            case 58: now.uses_summertime = naive_value_B;
+                now.undefined_uses_summertime_output = is_value_bad; break;
+        }
+    }
+
+#endif
 }
 
 namespace DCF77_Flag_Decoder {
@@ -1654,7 +1948,12 @@ namespace DCF77_Second_Decoder {
 
     sync_bins bins;
 
+#ifdef MSF60
+    serialized_clock_stream_pair convolution_kernel;
+#else
     serialized_clock_stream convolution_kernel;
+#endif
+
     // used to determine how many of the predicted bits are actually observed,
     // also used to indicate if convolution is already applied
     const uint8_t convolution_binning_not_ready = 0xff;
@@ -1677,6 +1976,155 @@ namespace DCF77_Second_Decoder {
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
         prediction_match = 0;
     }
+
+#ifdef MSF60
+
+    void convolution_binning(const uint8_t tick_data) {
+        using namespace Arithmetic_Tools;
+
+        // determine sync lock
+        if (DCF77_Second_Decoder::bins.max - DCF77_Second_Decoder::bins.noise_max <= lock_threshold || get_second() == 3) {
+            // after a lock is acquired this happens only once per minute and it is
+            // reasonable cheap to process,
+            //
+            // that is: after we have a "lock" this will be processed whenever
+            // the sync mark was detected
+
+            Hamming::compute_max_index(DCF77_Second_Decoder::bins);
+
+            const uint8_t convolution_weight = 50;
+            if (DCF77_Second_Decoder::bins.max > 255-convolution_weight) {
+                // If we know we can not raise the maximum any further we
+                // will lower the noise floor instead.
+                for (uint8_t bin_index = 0; bin_index < DCF77_Second_Decoder::seconds_per_minute; ++bin_index) {
+                    bounded_decrement<convolution_weight>(DCF77_Second_Decoder::bins.data[bin_index]);
+                }
+                DCF77_Second_Decoder::bins.max -= convolution_weight;
+                bounded_decrement<convolution_weight>(DCF77_Second_Decoder::bins.noise_max);
+            }
+            buffered_match = prediction_match;
+        }
+
+        if (tick_data == min_marker) {
+            bounded_increment<6>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+            if (DCF77_Second_Decoder::bins.tick == DCF77_Second_Decoder::bins.max_index) {
+                prediction_match += 6;
+            }
+        } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
+            for (uint8_t current_byte_index = 0, current_byte_A_value = convolution_kernel.A.byte_0, current_byte_B_value = convolution_kernel.B.byte_0; current_byte_index < 6; current_byte_index++, current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index], current_byte_B_value = (&(convolution_kernel.B.byte_0))[current_byte_index]) {
+                // bit 17 is where the convolution kernel starts
+                for (uint8_t current_bit_index = 0, bin = bin>16? bin-17: bin + DCF77_Second_Decoder::seconds_per_minute-17; current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2); current_bit_index++, current_byte_A_value >>= 1, current_byte_B_value >>= 1, bin = bin>0? bin-1: DCF77_Second_Decoder::seconds_per_minute-1) {
+                    const bool is_match = (tick_data == (current_byte_A_value<<1 & 2) | (current_byte_B_value & 1));
+                    DCF77_Second_Decoder::bins.data[bin] += is_match;
+
+                    if (bin == DCF77_Second_Decoder::bins.max_index) {
+                        prediction_match += is_match;
+                    }
+                }
+            }
+        }
+
+        DCF77_Second_Decoder::bins.tick = DCF77_Second_Decoder::bins.tick<DCF77_Second_Decoder::seconds_per_minute-1? DCF77_Second_Decoder::bins.tick+1: 0;
+    }
+
+    uint8_t get_previous_n_tick(uint8_t n) {
+        return (DCF77_Second_Decoder::bins.tick > (n-1) ? DCF77_Second_Decoder::bins.tick - n: DCF77_Second_Decoder::bins.tick + DCF77_Second_Decoder::seconds_per_minute - n);
+    }
+
+    void sync_mark_binning(const uint8_t tick_data) {
+        // We use a binning approach to find out the proper phase.
+        // The goal is to localize the sync_mark. Due to noise
+        // there may be wrong marks of course. The idea is to not
+        // only look at the statistics of the marks but to exploit
+        // additional data properties:
+        //
+        // Bit A and B position 52 after a proper sync are both 0.
+        // Bit A and B position 59 after a proper sync are both 0.
+        // Bit A positions 1-16 after a proper sync are all 0.
+        // Bit B positions 17-52 after a proper sync are all 0.
+        //
+        // The binning will work as follows:
+        //   1) A sync mark will score +10 points for the current bin
+        //   2) A "1" in bit A will score +1 points 53-58 bins back
+        //  2b) A "0" in bit A will score +1 points for bins 1-16 back as well as 52 and 59 back
+        //   3) A "0" in bit B will score +1 points for bins 17-52 and 59.
+        //   4) An undefined value will score -2 point for the current bin
+        //   5) Scores have an upper limit of 255 and a lower limit of 0.
+        //
+        // Summary: sync mark earns 10 points, a 0 in position 52 and 59 earn 1 bonus point
+        //          anything that allows to infer that any of the "connected" positions is not a sync will remove 2 points
+        //
+        // It follows that the score of a sync mark (during good reception)
+        // may move up/down the whole scale in slightly below 64 minutes.
+        // If the receiver should glitch for whatever reason this implies
+        // that the clock will take about 33 minutes to recover the proper
+        // phase (during phases of good reception). During bad reception things
+        // are more tricky.
+        using namespace Arithmetic_Tools;
+
+        switch (tick_data) {
+            case min_marker:
+                bounded_increment<10>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+                break;
+
+            case A0_B0:
+                for (uint8_t i=1; i<=51; ++i) {
+                    bounded_increment<1>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(i)]);
+                }
+                bounded_increment<2>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(52)]);
+                bounded_increment<2>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(59)]);
+                bounded_decrement<60>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+                break;
+
+            case A0_B1:
+                for (uint8_t i=1; i<=16; ++i) {
+                    bounded_increment<1>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(i)]);
+                }
+                bounded_increment<1>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(52)]);
+                bounded_increment<1>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(59)]);
+                bounded_decrement<60>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+                break;
+
+            case A1_B0:
+                for (uint8_t i=17; i<=59; ++i) {
+                    bounded_increment<1>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(i)]);
+                }
+                bounded_decrement<60>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+                break;
+
+            case A1_B1:
+                for (uint8_t i=53; i<=58; ++i) {
+                    bounded_increment<1>(DCF77_Second_Decoder::bins.data[get_previous_n_tick(i)]);
+                }
+                bounded_decrement<60>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+                break;
+
+            case undefined:
+                bounded_decrement<55>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+                break;
+
+            default:
+                bounded_decrement<60>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+        }
+
+        DCF77_Second_Decoder::bins.tick = DCF77_Second_Decoder::bins.tick<DCF77_Second_Decoder::seconds_per_minute-1? DCF77_Second_Decoder::bins.tick+1: 0;
+
+        // determine sync lock
+        if (DCF77_Second_Decoder::bins.max - DCF77_Second_Decoder::bins.noise_max <=lock_threshold || get_second() == 3) {
+
+            // after a lock is acquired this happens only once per minute and it is
+            // reasonable cheap to process,
+            //
+            // that is: after we have a "lock" this will be processed whenever
+            // the sync mark was detected
+
+            Hamming::compute_max_index(DCF77_Second_Decoder::bins);
+        }
+    }
+
+
+
+#else     
 
     void convolution_binning(const uint8_t tick_data) {
         using namespace Arithmetic_Tools;
@@ -1846,6 +2294,7 @@ namespace DCF77_Second_Decoder {
             Hamming::compute_max_index(bins);
         }
     }
+#endif
 
     void get_quality(Hamming::lock_quality_t &lock_quality) {
         Hamming::get_quality(bins, lock_quality);
@@ -1855,6 +2304,12 @@ namespace DCF77_Second_Decoder {
         return Hamming::get_quality_factor(bins);
     }
 
+#ifdef MSF60    
+    #define TICK_RETARD 2
+#else
+    #define TICK_RETARD 1
+#endif    
+    
     uint8_t get_second() {
         if (bins.max - bins.noise_max >= lock_threshold) {
             // at least one sync mark and a 0 and a 1 seen
@@ -1868,7 +2323,7 @@ namespace DCF77_Second_Decoder {
             //   1 because the seconds already advanced by 1 tick
             //   1 because the sync mark is not second 0 but second 59
 
-            uint8_t second = 2*seconds_per_minute + bins.tick - 2 - bins.max_index;
+            uint8_t second = 2*seconds_per_minute + bins.tick - TICK_RETARD - bins.max_index;
             while (second >= seconds_per_minute) { second-= seconds_per_minute; }
 
             return second;
@@ -2498,6 +2953,7 @@ namespace DCF77_Clock_Controller {
         DCF77_Frequency_Control::setup();
     }
 
+#ifndef MSF60
     void process_single_tick_data(const DCF77::tick_t tick_data) {
         using namespace DCF77;
         using namespace DCF77_Second_Decoder;
@@ -2545,7 +3001,9 @@ namespace DCF77_Clock_Controller {
                     }
                 }
             }
+
             const uint8_t tick_value = (tick_data == long_tick || tick_data == undefined)? 1: 0;
+
             DCF77_Flag_Decoder::process_tick(now.second, tick_value);
             DCF77_Minute_Decoder::process_tick(now.second, tick_value);
             DCF77_Hour_Decoder::process_tick(now.second, tick_value);
@@ -2555,6 +3013,50 @@ namespace DCF77_Clock_Controller {
             DCF77_Year_Decoder::process_tick(now.second, tick_value);
         }
     }
+#else
+    void process_single_tick_data(const DCF77::tick_t tick_data) {
+        using namespace DCF77;
+
+        time_data_t now;
+        set_DCF77_encoder(now);
+
+        DCF77_Encoder::advance_second(now);
+        DCF77_Second_Decoder::process_single_tick_data(tick_data);
+
+        if (now.second == 0) {
+            DCF77_Minute_Decoder::advance_minute();
+            if (now.minute.val == 0x00) {
+
+                // "while" takes automatically care of timezone change
+                while (DCF77_Hour_Decoder::get_hour().val <= 0x23 && DCF77_Hour_Decoder::get_hour().val != now.hour.val) { DCF77_Hour_Decoder::advance_hour(); }
+
+                if (now.hour.val == 0x00) {
+                    if (DCF77_Weekday_Decoder::get_weekday().val <= 0x07) { DCF77_Weekday_Decoder::advance_weekday(); }
+
+                    // "while" takes automatically care of different month lengths
+                    while (DCF77_Day_Decoder::get_day().val <= 0x31 && DCF77_Day_Decoder::get_day().val != now.day.val) { DCF77_Day_Decoder::advance_day(); }
+
+                    if (now.day.val == 0x01) {
+                        if (DCF77_Month_Decoder::get_month().val <= 0x12) { DCF77_Month_Decoder::advance_month(); }
+                        if (now.month.val == 0x01) {
+                            if (now.year.val <= 0x99) { DCF77_Year_Decoder::advance_year(); }
+                        }
+                    }
+                }
+            }
+        }
+        const bool tick_value_A = (tick_data == A1_B0 || tick_data == A1_B1 || tick_data == undefined)? 1: 0;
+        const bool tick_value_B = (tick_data == A0_B1 || tick_data == A1_B1 || tick_data == undefined)? 1: 0;
+
+        DCF77_Flag_Decoder::process_tick(now.second, tick_value_B);
+        DCF77_Minute_Decoder::process_tick(now.second, tick_value_A);
+        DCF77_Hour_Decoder::process_tick(now.second, tick_value_A);
+        DCF77_Weekday_Decoder::process_tick(now.second, tick_value_A);
+        DCF77_Day_Decoder::process_tick(now.second, tick_value_A);
+        DCF77_Month_Decoder::process_tick(now.second, tick_value_A);
+        DCF77_Year_Decoder::process_tick(now.second, tick_value_A);
+    }
+#endif
 }
 
 namespace DCF77_Demodulator {
@@ -2587,6 +3089,69 @@ namespace DCF77_Demodulator {
         Hamming::setup(bins);
     }
 
+#ifdef MSF60
+
+        void decode_500ms(const uint8_t input, const uint8_t bins_to_go) {
+            // will be called for each bin during the "interesting" period
+
+            static uint8_t count = 0;
+            static uint8_t decoded_data = 4;
+            static bool sec_marker_seen = false;
+
+            // pass control further
+            // decoded_data: 0 --> A0_B0,
+            //               1 --> A0_B1,
+            //               2 --> A1_B0,
+            //               3 --> A1_B1,
+            //               4 --> undefined,
+            //               5 --> min_marker
+            count += input;
+
+            switch(bins_to_go) {
+                if (!sec_marker_seen) {
+                    // Second marker 100ms in length (1ms - 100ms after start of second)
+                    case 40:
+                        sec_marker_seen = (count > DCF77_Demodulator::bins_per_50ms);
+                    count = 0;
+                    break;
+
+                } else {
+
+                    // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
+                    case 30:
+                        decoded_data = (count > DCF77_Demodulator::bins_per_50ms) << 1;
+                    count = 0;
+                    break;
+
+                    // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
+                    case 20:
+                        decoded_data += (count > DCF77_Demodulator::bins_per_50ms);
+                    count = 0;
+                    break;
+
+                    // this case reads 301ms - 400ms after start of second
+                    case 10:
+                        if (count > DCF77_Demodulator::bins_per_50ms) {
+                            decoded_data += (decoded_data == 3);
+                        }
+                    count = 0;
+                    break;
+
+                    // Minute marker is 500ms in length, this case reads 401ms - 500ms after start of second
+                    case 0:
+
+                        if (count > DCF77_Demodulator::bins_per_50ms) {
+                            decoded_data = 4 + (decoded_data == 4);
+                        }
+                    DCF77_Clock_Controller::process_single_tick_data((DCF77::tick_t)decoded_data);
+                    count = 0;
+                    sec_marker_seen = false;
+                    decoded_data = 4;
+                }
+            }
+        }
+
+#else
     void decode_220ms(const uint8_t input, const uint8_t bins_to_go) {
         // will be called for each bin during the "interesting" 220ms
 
@@ -2612,6 +3177,7 @@ namespace DCF77_Demodulator {
             }
         }
     }
+#endif
 
     uint16_t wrap(const uint16_t value) {
         // faster modulo function which avoids division
@@ -2720,7 +3286,11 @@ namespace DCF77_Demodulator {
                 DCF77_Clock_Controller::flush();
 
                 // start processing of bins
+#ifdef MSF60
+                bins_to_process = 5*bins_per_100ms;
+#else
                 bins_to_process = bins_per_200ms + 2*bins_per_10ms;
+#endif
             }
         }
 
@@ -2729,7 +3299,11 @@ namespace DCF77_Demodulator {
 
             // this will be called for each bin in the "interesting" 220ms
             // this is also a good place for a "monitoring hook"
+#ifdef MSF60
+            decode_500ms(input, bins_to_process);
+#else
             decode_220ms(input, bins_to_process);
+#endif
         }
     }
 
@@ -3301,6 +3875,8 @@ namespace DCF77_1_Khz_Generator {
     }
 }
 
+#ifndef STANDALONE
 ISR(TIMER2_COMPA_vect) {
         DCF77_1_Khz_Generator::isr_handler();
 }
+#endif

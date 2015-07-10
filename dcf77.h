@@ -48,67 +48,124 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 #include <stdint.h>
 
-#ifndef STANDALONE
-#include "Arduino.h"
-#endif
-
 #ifdef STANDALONE
-
-
-#include <stdint.h>
-#include <c++/iostream>
-
-#define boolean int8_t
-#define abs(A) ((A<0)?-A:A)
-#define min(A,B) ((A<B)?A:B)
-#define HEX 1
-#define DEC 0
-#define BIN 1
-
-
-int16_t TCCR2B;
-int16_t TCCR2A;
-int16_t OCR2A;
-int16_t TIMSK0;
-int TIMSK2;
-int SREG;
-
-#define F(A) A
-
-
-#define WGM22 0
-#define WGM21 0
-#define WGM20 0
-#define CS22 0
-#define OCIE2A 0
-
-class DummySerial {
-public:
-    size_t print(const char[]) { };
-    size_t print() { };
-    size_t print(char) { };
-    size_t print(unsigned char, int = DEC) { };
-    size_t print(int, int = DEC) { };
-    size_t print(unsigned int, int = DEC) { };
-    size_t print(long, int = DEC) { };
-    size_t print(unsigned long, int = DEC) { };
-    size_t print(double, int = 2) { };
-    size_t println() { };
-    size_t println(char) { };
-    size_t println(unsigned char, int = DEC) { };
-    size_t println(int, int = DEC) { };
-    size_t println(const char &c, int = DEC) { };
-    size_t println(const char c[], int = DEC) { };
-    size_t println(unsigned int, int = DEC) { };
-    size_t println(long, int = DEC) { };
-    size_t println(unsigned long, int = DEC) { };
-    size_t println(double, int = 2) { };
-};
-
-DummySerial Serial;
-
-int cli() { return 0; };
+    #include "standalone.h"
+#else
+    #include "Arduino.h"
 #endif
+
+// Constants refering to data in time signal
+
+// DCF77 Offsets
+
+#ifndef MSF60
+
+#define OFFSET_MINUTE_1 (21)
+#define OFFSET_MINUTE_2 (22)
+#define OFFSET_MINUTE_4 (23)
+#define OFFSET_MINUTE_8 (24)
+#define OFFSET_MINUTE_10 (25)
+#define OFFSET_MINUTE_20 (26)
+#define OFFSET_MINUTE_40 (27)
+#define OFFSET_MINUTE_PARITY (28)
+#define OFFSET_MINUTE_PROCESS (29)
+
+#define OFFSET_HOUR_1 (29)
+#define OFFSET_HOUR_2 (30)
+#define OFFSET_HOUR_4 (31)
+#define OFFSET_HOUR_8 (32)
+#define OFFSET_HOUR_10 (33)
+#define OFFSET_HOUR_20 (34)
+#define OFFSET_HOUR_PARITY (35)
+#define OFFSET_HOUR_PROCESS (36)
+
+#define OFFSET_DAY_1 (36)
+#define OFFSET_DAY_2 (37)
+#define OFFSET_DAY_4 (38)
+#define OFFSET_DAY_8 (39)
+#define OFFSET_DAY_10 (40)
+#define OFFSET_DAY_20 (41)
+#define OFFSET_DAY_PROCESS (42)
+
+#define OFFSET_WEEKDAY_1 (42)
+#define OFFSET_WEEKDAY_2 (43)
+#define OFFSET_WEEKDAY_4 (44)
+#define OFFSET_WEEKDAY_PROCESS (45)
+
+#define OFFSET_MONTH_1 (45)
+#define OFFSET_MONTH_2 (46)
+#define OFFSET_MONTH_4 (47)
+#define OFFSET_MONTH_8 (48)
+#define OFFSET_MONTH_10 (49)
+#define OFFSET_MONTH_PROCESS (50)
+
+#define OFFSET_YEAR_1 (50)
+#define OFFSET_YEAR_2 (51)
+#define OFFSET_YEAR_4 (52)
+#define OFFSET_YEAR_8 (53)
+#define OFFSET_YEAR_PROCESS (54)
+
+#define OFFSET_DECADE_1 (54)
+#define OFFSET_DECADE_2 (55)
+#define OFFSET_DECADE_4 (56)
+#define OFFSET_DECADE_8 (57)
+#define OFFSET_DECADE_PROCESS (58)
+
+#else
+
+#define OFFSET_MINUTE_1 (51)
+#define OFFSET_MINUTE_2 (50)
+#define OFFSET_MINUTE_4 (49)
+#define OFFSET_MINUTE_8 (48)
+#define OFFSET_MINUTE_10 (47)
+#define OFFSET_MINUTE_20 (46)
+#define OFFSET_MINUTE_40 (45)
+#define OFFSET_MINUTE_PARITY (255)
+#define OFFSET_MINUTE_PROCESS (58)
+
+#define OFFSET_HOUR_1 (44)
+#define OFFSET_HOUR_2 (43)
+#define OFFSET_HOUR_4 (42)
+#define OFFSET_HOUR_8 (41)
+#define OFFSET_HOUR_10 (40)
+#define OFFSET_HOUR_20 (39)
+#define OFFSET_HOUR_PARITY (254)
+#define OFFSET_HOUR_PROCESS (58)
+
+#define OFFSET_DAY_1 (35)
+#define OFFSET_DAY_2 (34)
+#define OFFSET_DAY_4 (33)
+#define OFFSET_DAY_8 (32)
+#define OFFSET_DAY_10 (31)
+#define OFFSET_DAY_20 (30)
+#define OFFSET_DAY_PROCESS (36)
+
+#define OFFSET_WEEKDAY_1 (38)
+#define OFFSET_WEEKDAY_2 (37)
+#define OFFSET_WEEKDAY_4 (36)
+#define OFFSET_WEEKDAY_PROCESS (39)
+
+#define OFFSET_MONTH_1 (29)
+#define OFFSET_MONTH_2 (28)
+#define OFFSET_MONTH_4 (27)
+#define OFFSET_MONTH_8 (26)
+#define OFFSET_MONTH_10 (25)
+#define OFFSET_MONTH_PROCESS (30)
+
+#define OFFSET_YEAR_1 (24)
+#define OFFSET_YEAR_2 (23)
+#define OFFSET_YEAR_4 (22)
+#define OFFSET_YEAR_8 (21)
+#define OFFSET_YEAR_PROCESS (25)
+
+#define OFFSET_DECADE_1 (20)
+#define OFFSET_DECADE_2 (19)
+#define OFFSET_DECADE_4 (18)
+#define OFFSET_DECADE_8 (17)
+#define OFFSET_DECADE_PROCESS (21)
+
+#endif
+
 
 namespace BCD {
     typedef union {
@@ -211,12 +268,24 @@ namespace DCF77_Clock {
 }
 
 namespace DCF77 {
+
+#ifdef MSF60
+    typedef enum {
+        min_marker = 5,
+        undefined  = 4,
+        A1_B1      = 3,
+        A1_B0      = 2,
+        A0_B1      = 1,
+        A0_B0      = 0
+    } tick_t;
+#else
     typedef enum {
         long_tick  = 3,
         short_tick = 2,
         undefined  = 1,
         sync_mark  = 0
     } tick_t;
+#endif
 
     typedef struct {
         uint8_t byte_0;  // bit 16-20  // flags
@@ -226,6 +295,13 @@ namespace DCF77 {
         uint8_t byte_4;  // bit 45-52  // month + bit 0-2 of year
         uint8_t byte_5;  // bit 52-58  // year + parity
     } serialized_clock_stream;
+
+#ifdef MSF60
+    typedef struct {
+        serialized_clock_stream A;
+        serialized_clock_stream B;
+    } serialized_clock_stream_pair;
+#endif
 
     typedef struct {
         BCD::bcd_t year;     // 0..99
@@ -244,6 +320,13 @@ namespace DCF77 {
         bool undefined_uses_summertime_output               : 1;
         bool undefined_abnormal_transmitter_operation_output: 1;
         bool undefined_timezone_change_scheduled_output     : 1;
+
+#ifdef MSF60
+        bool undefined_year_output          : 1;
+        bool undefined_day_output           : 1;
+        bool undefined_weekday_output       : 1;
+        bool undefined_time_output          : 1;
+#endif
     } time_data_t;
 
     typedef void (*output_handler_t)(const DCF77::time_data_t &decoded_time);
