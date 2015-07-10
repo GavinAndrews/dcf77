@@ -6,7 +6,6 @@
 
 #include "dcf77.h"
 
-#include <fstream>
 
 int main() {
 

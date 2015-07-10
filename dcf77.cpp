@@ -466,6 +466,17 @@ namespace DCF77_Encoder {
     }
 
     void autoset_timezone(DCF77::time_data_t &now) {
+
+        // BST
+        // timezone change may only happen at the last sunday of march / october
+        // the last sunday is always somewhere in [25-31]
+
+        // Wintertime --> Summertime happens at 01:00 UTC == 01:00 GMT == 01:00 BST,
+        // Summertime --> Wintertime happens at 01:00 UTC == 01:00 GMT == 02:00 BST
+
+        //TODO Check the rules and check the logic below
+
+        // CEST
         // timezone change may only happen at the last sunday of march / october
         // the last sunday is always somewhere in [25-31]
 
@@ -1391,6 +1402,102 @@ namespace DCF77_Naive_Bitstream_Decoder {
 }
 
 namespace DCF77_Flag_Decoder {
+
+#ifdef MSF60
+
+    int8_t timezone_change_scheduled;
+    int8_t uses_summertime;
+    int8_t year_parity;
+    int8_t date_parity;
+    int8_t weekday_parity;
+    int8_t time_parity;
+
+    void setup() {
+        uses_summertime = 0;
+        timezone_change_scheduled = 0;
+        year_parity = 0;
+        date_parity = 0;
+        weekday_parity = 0;
+        time_parity = 0;
+    }
+
+    void cummulate(int8_t &average, bool count_up) {
+        if (count_up) {
+            average += (average < 127);
+        } else {
+            average -= (average > -127);
+        }
+    }
+
+    void process_tick(const uint8_t current_second, const bool tick_value) {
+
+        switch (current_second) {
+            case 53: cummulate(timezone_change_scheduled, tick_value); break;
+            case 54: cummulate(year_parity, tick_value); break;
+            case 55: cummulate(date_parity, tick_value); break;
+            case 56: cummulate(weekday_parity, tick_value); break;
+            case 57: cummulate(time_parity, tick_value); break;
+            case 58: cummulate(uses_summertime, tick_value); break;
+        }
+    }
+
+    void reset_after_previous_hour() {
+        // HH := hh+1
+        // timezone_change_scheduled will be set from hh:01 to HH:00
+
+        if (timezone_change_scheduled) {
+            timezone_change_scheduled = 0;
+            uses_summertime -= uses_summertime;
+        }
+    }
+
+    void reset_before_new_day() {
+        // date_parity will stay the same 00:00-23:59
+        date_parity = 0;
+        weekday_parity = 0;
+    }
+
+    bool get_uses_summertime() {
+        return uses_summertime > 0;
+    }
+
+    bool get_timezone_change_scheduled() {
+        return timezone_change_scheduled > 0;
+    }
+
+
+    void get_quality(uint8_t &uses_summertime_quality,
+                     uint8_t &timezone_change_scheduled_quality) {
+        uses_summertime_quality = abs(uses_summertime);
+        timezone_change_scheduled_quality = abs(timezone_change_scheduled);
+    }
+
+    void debug() {
+        Serial.print(F("TZ change, TZ, Year parity: Date parity: Time parity: Weekday parity: "));
+        Serial.print(timezone_change_scheduled, DEC);
+        Serial.print(',');
+        Serial.print(uses_summertime, DEC);
+        Serial.print(',');
+        Serial.println(year_parity, DEC);
+        Serial.print(',');
+        Serial.println(date_parity, DEC);
+        Serial.print(',');
+        Serial.println(time_parity, DEC);
+        Serial.print(',');
+        Serial.println(weekday_parity);
+    }
+#else
+
+
+
+
+
+
+
+
+
+
+
     bool abnormal_transmitter_operation;
     int8_t timezone_change_scheduled;
     int8_t uses_summertime;
@@ -1479,6 +1586,8 @@ namespace DCF77_Flag_Decoder {
         Serial.print(',');
         Serial.println(date_parity, DEC);
     }
+
+#endif
 }
 
 namespace DCF77_Decade_Decoder {
