@@ -1403,23 +1403,11 @@ namespace DCF77_Naive_Bitstream_Decoder {
 
 namespace DCF77_Flag_Decoder {
 
-#ifdef MSF60
-
+    bool abnormal_transmitter_operation;
     int8_t timezone_change_scheduled;
     int8_t uses_summertime;
-    int8_t year_parity;
+    int8_t leap_second_scheduled;
     int8_t date_parity;
-    int8_t weekday_parity;
-    int8_t time_parity;
-
-    void setup() {
-        uses_summertime = 0;
-        timezone_change_scheduled = 0;
-        year_parity = 0;
-        date_parity = 0;
-        weekday_parity = 0;
-        time_parity = 0;
-    }
 
     void cummulate(int8_t &average, bool count_up) {
         if (count_up) {
@@ -1427,6 +1415,25 @@ namespace DCF77_Flag_Decoder {
         } else {
             average -= (average > -127);
         }
+    }
+
+#ifdef MSF60
+
+    int8_t year_parity;
+    int8_t weekday_parity;
+    int8_t time_parity;
+
+    void setup() {
+
+        abnormal_transmitter_operation = 0;
+        timezone_change_scheduled = 0;
+        leap_second_scheduled = 0;
+        uses_summertime = 0;
+        date_parity = 0;
+
+        year_parity = 0;
+        weekday_parity = 0;
+        time_parity = 0;
     }
 
     void process_tick(const uint8_t current_second, const bool tick_value) {
@@ -1440,31 +1447,6 @@ namespace DCF77_Flag_Decoder {
             case 58: cummulate(uses_summertime, tick_value); break;
         }
     }
-
-    void reset_after_previous_hour() {
-        // HH := hh+1
-        // timezone_change_scheduled will be set from hh:01 to HH:00
-
-        if (timezone_change_scheduled) {
-            timezone_change_scheduled = 0;
-            uses_summertime -= uses_summertime;
-        }
-    }
-
-    void reset_before_new_day() {
-        // date_parity will stay the same 00:00-23:59
-        date_parity = 0;
-        weekday_parity = 0;
-    }
-
-    bool get_uses_summertime() {
-        return uses_summertime > 0;
-    }
-
-    bool get_timezone_change_scheduled() {
-        return timezone_change_scheduled > 0;
-    }
-
 
     void get_quality(uint8_t &uses_summertime_quality,
                      uint8_t &timezone_change_scheduled_quality) {
@@ -1488,36 +1470,12 @@ namespace DCF77_Flag_Decoder {
     }
 #else
 
-
-
-
-
-
-
-
-
-
-
-    bool abnormal_transmitter_operation;
-    int8_t timezone_change_scheduled;
-    int8_t uses_summertime;
-    int8_t leap_second_scheduled;
-    int8_t date_parity;
-
     void setup() {
         uses_summertime = 0;
         abnormal_transmitter_operation = 0;
         timezone_change_scheduled = 0;
         leap_second_scheduled = 0;
         date_parity = 0;
-    }
-
-    void cummulate(int8_t &average, bool count_up) {
-        if (count_up) {
-            average += (average < 127);
-        } else {
-            average -= (average > -127);
-        }
     }
 
     void process_tick(const uint8_t current_second, const uint8_t tick_value) {
@@ -1530,41 +1488,6 @@ namespace DCF77_Flag_Decoder {
             case 58: cummulate(date_parity, tick_value); break;
         }
     }
-
-    void reset_after_previous_hour() {
-        // HH := hh+1
-        // timezone_change_scheduled will be set from hh:01 to HH:00
-        // leap_second_scheduled will be set from hh:01 to HH:00
-
-        if (timezone_change_scheduled) {
-            timezone_change_scheduled = 0;
-            uses_summertime -= uses_summertime;
-        }
-        leap_second_scheduled = 0;
-    }
-
-    void reset_before_new_day() {
-        // date_parity will stay the same 00:00-23:59
-        date_parity = 0;
-    }
-
-    bool get_uses_summertime() {
-        return uses_summertime > 0;
-    }
-
-    bool get_abnormal_transmitter_operation() {
-        return abnormal_transmitter_operation;
-    }
-
-    bool get_timezone_change_scheduled() {
-        return timezone_change_scheduled > 0;
-    }
-
-    bool get_leap_second_scheduled() {
-        return leap_second_scheduled > 0;
-    }
-
-
 
     void get_quality(uint8_t &uses_summertime_quality,
                      uint8_t &timezone_change_scheduled_quality,
@@ -1588,6 +1511,39 @@ namespace DCF77_Flag_Decoder {
     }
 
 #endif
+
+
+    void reset_after_previous_hour() {
+        // HH := hh+1
+        // timezone_change_scheduled will be set from hh:01 to HH:00
+
+        if (timezone_change_scheduled) {
+            timezone_change_scheduled = 0;
+            uses_summertime -= uses_summertime;
+        }
+    }
+
+    void reset_before_new_day() {
+        // date_parity will stay the same 00:00-23:59
+        date_parity = 0;
+        weekday_parity = 0;
+    }
+
+    bool get_abnormal_transmitter_operation() {
+        return abnormal_transmitter_operation;
+    }
+
+    bool get_leap_second_scheduled() {
+        return leap_second_scheduled > 0;
+    }
+
+    bool get_uses_summertime() {
+        return uses_summertime > 0;
+    }
+
+    bool get_timezone_change_scheduled() {
+        return timezone_change_scheduled > 0;
+    }
 }
 
 namespace DCF77_Decade_Decoder {
@@ -2850,9 +2806,14 @@ namespace DCF77_Clock_Controller {
         DCF77_Month_Decoder::get_quality(clock_quality.month);
         DCF77_Year_Decoder::get_quality(clock_quality.year);
 
+#ifdef MSF60
+        DCF77_Flag_Decoder::get_quality(clock_quality.uses_summertime_quality,
+                                        clock_quality.timezone_change_scheduled_quality);
+#else
         DCF77_Flag_Decoder::get_quality(clock_quality.uses_summertime_quality,
                                         clock_quality.timezone_change_scheduled_quality,
                                         clock_quality.leap_second_scheduled_quality);
+#endif
     }
 
 
