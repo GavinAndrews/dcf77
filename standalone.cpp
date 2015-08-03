@@ -8,7 +8,7 @@
 
 
 void output_handler(const DCF77_Clock::time_t &decoded_time) {
-    std::cout << "Hello";
+    std::cout << "Hello" << std::endl;
 }
 
 int main() {
