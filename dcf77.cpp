@@ -3188,27 +3188,27 @@ namespace DCF77_Demodulator {
             // Second marker 100ms in length (1ms - 100ms after start of second)
             case 40:
                 initial = (count > DCF77_Demodulator::bins_per_50ms);
-                //std::cout << "S1=" << (int)count << ",";
+                std::cout << "S1=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
             case 30:
                 bitA = (count > DCF77_Demodulator::bins_per_50ms);
-                //std::cout << "S2=" << (int)count << ",";
+                std::cout << "S2=" << (int)count << ",";
                 count = 0;
                 break;
 
                 // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
             case 20:
                 bitB = (count > DCF77_Demodulator::bins_per_50ms);
-                //std::cout << "S3=" << (int)count << ",";
+                std::cout << "S3=" << (int)count << ",";
                 count = 0;
                 break;
 
                 // this case reads 301ms - 400ms after start of second
             case 0:
-                //std::cout << "S4=" << (int)count << "\n";
+                std::cout << "S4=" << (int)count << ",";
                 trail = (count > DCF77_Demodulator::bins_per_100ms);
 
                 // If all five sections are High then must be MM
