@@ -7,9 +7,14 @@
 #include "dcf77.h"
 
 
+void output_handler(const DCF77_Clock::time_t &decoded_time) {
+    std::cout << "Hello" << std::endl;
+}
+
 int main() {
 
-    std::ifstream infile("capture_20150628.csv");
+    DCF77_Clock_Controller::set_output_handler(&output_handler);
+    std::ifstream infile("capture_20150804.csv");
 
     uint8_t a;
     std::string line;

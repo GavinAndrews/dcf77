@@ -3087,6 +3087,8 @@ namespace DCF77_Clock_Controller {
     void process_single_tick_data(const DCF77::tick_t tick_data) {
         using namespace DCF77;
 
+        std::cout << tick_data << std::endl;
+
         time_data_t now;
         set_DCF77_encoder(now);
 
@@ -3161,65 +3163,84 @@ namespace DCF77_Demodulator {
 
 #ifdef MSF60
 
-        void decode_500ms(const uint8_t input, const uint8_t bins_to_go) {
-            // will be called for each bin during the "interesting" period
+    void decode_500ms(const uint8_t input, const uint8_t bins_to_go) {
+        // will be called for each bin during the "interesting" period
 
-            static uint8_t count = 0;
-            static uint8_t decoded_data = 4;
-            static bool sec_marker_seen = false;
+        static uint8_t count = 0;
+        static uint8_t decoded_data = 4;
 
-            // pass control further
-            // decoded_data: 0 --> A0_B0,
-            //               1 --> A0_B1,
-            //               2 --> A1_B0,
-            //               3 --> A1_B1,
-            //               4 --> undefined,
-            //               5 --> min_marker
-            count += input;
+        static bool initial = false;
+        static bool trail = false;
+        static bool bitA = false;
+        static bool bitB = false;
 
-            switch(bins_to_go) {
-                if (!sec_marker_seen) {
-                    // Second marker 100ms in length (1ms - 100ms after start of second)
-                    case 40:
-                        sec_marker_seen = (count > DCF77_Demodulator::bins_per_50ms);
-                    count = 0;
-                    break;
+        // pass control further
+        // decoded_data: 0 --> A0_B0,
+        //               1 --> A0_B1,
+        //               2 --> A1_B0,
+        //               3 --> A1_B1,
+        //               4 --> undefined,
+        //               5 --> min_marker
+        count += input;
 
-                } else {
+        switch (bins_to_go) {
 
-                    // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
-                    case 30:
-                        decoded_data = (count > DCF77_Demodulator::bins_per_50ms) << 1;
-                    count = 0;
-                    break;
+            // Second marker 100ms in length (1ms - 100ms after start of second)
+            case 40:
+                initial = (count > 5);
+                std::cout << "S1=" << (int)count << ",";
+                count=0;
+                break;
 
-                    // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
-                    case 20:
-                        decoded_data += (count > DCF77_Demodulator::bins_per_50ms);
-                    count = 0;
-                    break;
+            case 36:
+                std::cout << "X1=" << (int)count << ",";
+                count=0;
+                break;
 
-                    // this case reads 301ms - 400ms after start of second
-                    case 10:
-                        if (count > DCF77_Demodulator::bins_per_50ms) {
-                            decoded_data += (decoded_data == 3);
-                        }
-                    count = 0;
-                    break;
+                // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
+            case 30:
+                bitA = (count > 3);
+                std::cout << "S2=" << (int)count << ",";
+                count = 0;
+                break;
 
-                    // Minute marker is 500ms in length, this case reads 401ms - 500ms after start of second
-                    case 0:
+            case 26:
+                std::cout << "X2=" << (int)count << ",";
+                count=0;
+                break;
 
-                        if (count > DCF77_Demodulator::bins_per_50ms) {
-                            decoded_data = 4 + (decoded_data == 4);
-                        }
-                    DCF77_Clock_Controller::process_single_tick_data((DCF77::tick_t)decoded_data);
-                    count = 0;
-                    sec_marker_seen = false;
+                // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
+            case 20:
+                bitB = (count > 3);
+                std::cout << "S3=" << (int)count << ",";
+                count = 0;
+                break;
+
+            case 16:
+                std::cout << "X3=" << (int)count << ",";
+                count=0;
+                break;
+
+                // this case reads 301ms - 400ms after start of second
+            case 0:
+                std::cout << "S4=" << (int)count << ",";
+                trail = (count > 8);
+
+                // If all five sections are High then must be MM
+                if ((bitA && bitB)&&(initial && trail)) {
+                    decoded_data=5;
+                } else if ((!initial)||(trail)) {
                     decoded_data = 4;
+                } else
+                {
+                    decoded_data = (((uint8_t)bitA)<<1) + ((uint8_t)bitB);
                 }
-            }
+
+                DCF77_Clock_Controller::process_single_tick_data((DCF77::tick_t) decoded_data);
+                count = 0;
+                break;
         }
+    }
 
 #else
     void decode_220ms(const uint8_t input, const uint8_t bins_to_go) {
