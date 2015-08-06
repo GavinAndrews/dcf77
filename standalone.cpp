@@ -8,13 +8,13 @@
 
 
 void output_handler(const DCF77_Clock::time_t &decoded_time) {
-    std::cout << "Hello" << std::endl;
+//    std::cout << "Hello" << std::endl;
 }
 
 int main() {
 
     DCF77_Clock_Controller::set_output_handler(&output_handler);
-    std::ifstream infile("capture_20150804.csv");
+    std::ifstream infile("capture_20150804b.csv");
 
     uint8_t a;
     std::string line;

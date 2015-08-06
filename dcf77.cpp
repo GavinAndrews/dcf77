@@ -1580,6 +1580,7 @@ namespace DCF77_Decade_Decoder {
 
             case OFFSET_DECADE_PROCESS: hamming_binning<decade_bins, 4, false>(bins, decade_data);
                 compute_max_index(bins);
+                std::cout << "Process Decade: " << (int) decade_data.val << "\n";
                 // fall through on purpose
             default: decade_data.val = 0;
         }
@@ -1643,6 +1644,7 @@ namespace DCF77_Year_Decoder {
 
             case OFFSET_YEAR_PROCESS: hamming_binning<year_bins, 4, false>(bins, year_data);
                 compute_max_index(bins);
+                std::cout << "Process Year: " << (int) year_data.val << "\n";
                 // fall through on purpose
             default: year_data.val = 0;
         }
@@ -1900,10 +1902,12 @@ namespace DCF77_Hour_Decoder {
             case OFFSET_HOUR_8: hour_data.val +=  0x8*tick_value; break;
             case OFFSET_HOUR_10: hour_data.val += 0x10*tick_value; break;
             case OFFSET_HOUR_20: hour_data.val += 0x20*tick_value; break;
-            case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
-                hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
 
-            case OFFSET_HOUR_PROCESS: compute_max_index(bins);
+//            case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
+//                hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
+
+            case OFFSET_HOUR_PROCESS: hamming_binning<hour_bins, 7, true>(bins, hour_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: hour_data.val = 0;
         }
@@ -1962,9 +1966,10 @@ namespace DCF77_Minute_Decoder {
             case OFFSET_MINUTE_10: minute_data.val += 0x10*tick_value; break;
             case OFFSET_MINUTE_20: minute_data.val += 0x20*tick_value; break;
             case OFFSET_MINUTE_40: minute_data.val += 0x40*tick_value; break;
-            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
-                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
-            case OFFSET_MINUTE_PROCESS: compute_max_index(bins);
+//            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
+//                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
+            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 8, true>(bins, minute_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: minute_data.val = 0;
         }
@@ -2039,7 +2044,9 @@ namespace DCF77_Second_Decoder {
         DCF77_Encoder::autoset_control_bits(convolution_clock);
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
-        prediction_match = 0;
+
+        //TODO DISABLE CONVOLUTION FOR NOW
+        //prediction_match = 0;
     }
 
 #ifdef MSF60
@@ -3192,7 +3199,7 @@ namespace DCF77_Demodulator {
                 count=0;
                 break;
 
-            case 36:
+            case 35:
                 std::cout << "X1=" << (int)count << ",";
                 count=0;
                 break;
@@ -3204,7 +3211,7 @@ namespace DCF77_Demodulator {
                 count = 0;
                 break;
 
-            case 26:
+            case 25:
                 std::cout << "X2=" << (int)count << ",";
                 count=0;
                 break;
