@@ -1576,10 +1576,10 @@ namespace DCF77_Decade_Decoder {
             case OFFSET_DECADE_1: decade_data.val +=      tick_value; break;
             case OFFSET_DECADE_2: decade_data.val += 0x02*tick_value; break;
             case OFFSET_DECADE_4: decade_data.val += 0x04*tick_value; break;
-            case OFFSET_DECADE_8: decade_data.val += 0x08*tick_value;
-                hamming_binning<decade_bins, 4, false>(bins, decade_data); break;
+            case OFFSET_DECADE_8: decade_data.val += 0x08*tick_value; break;
 
-            case OFFSET_DECADE_PROCESS: compute_max_index(bins);
+            case OFFSET_DECADE_PROCESS: hamming_binning<decade_bins, 4, false>(bins, decade_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: decade_data.val = 0;
         }
@@ -1639,10 +1639,10 @@ namespace DCF77_Year_Decoder {
             case OFFSET_YEAR_1: year_data.val +=      tick_value; break;
             case OFFSET_YEAR_2: year_data.val +=  0x2*tick_value; break;
             case OFFSET_YEAR_4: year_data.val +=  0x4*tick_value; break;
-            case OFFSET_YEAR_8: year_data.val +=  0x8*tick_value;
-                hamming_binning<year_bins, 4, false>(bins, year_data); break;
+            case OFFSET_YEAR_8: year_data.val +=  0x8*tick_value; break;
 
-            case OFFSET_YEAR_PROCESS: compute_max_index(bins);
+            case OFFSET_YEAR_PROCESS: hamming_binning<year_bins, 4, false>(bins, year_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: year_data.val = 0;
         }
@@ -1721,10 +1721,10 @@ namespace DCF77_Month_Decoder {
             case OFFSET_MONTH_2: month_data.val +=  0x2*tick_value; break;
             case OFFSET_MONTH_4: month_data.val +=  0x4*tick_value; break;
             case OFFSET_MONTH_8: month_data.val +=  0x8*tick_value; break;
-            case OFFSET_MONTH_10: month_data.val += 0x10*tick_value;
-                hamming_binning<month_bins, 5, false>(bins, month_data); break;
+            case OFFSET_MONTH_10: month_data.val += 0x10*tick_value; break;
 
-            case OFFSET_MONTH_PROCESS: compute_max_index(bins);
+            case OFFSET_MONTH_PROCESS: hamming_binning<month_bins, 5, false>(bins, month_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: month_data.val = 0;
         }
@@ -1779,9 +1779,9 @@ namespace DCF77_Weekday_Decoder {
         switch (current_second) {
             case OFFSET_WEEKDAY_1: weekday_data.val +=      tick_value; break;
             case OFFSET_WEEKDAY_2: weekday_data.val +=  0x2*tick_value; break;
-            case OFFSET_WEEKDAY_4: weekday_data.val +=  0x4*tick_value;
-                hamming_binning<weekday_bins, 3, false>(bins, weekday_data); break;
-            case OFFSET_WEEKDAY_PROCESS: compute_max_index(bins);
+            case OFFSET_WEEKDAY_4: weekday_data.val +=  0x4*tick_value; break;
+            case OFFSET_WEEKDAY_PROCESS: hamming_binning<weekday_bins, 3, false>(bins, weekday_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: weekday_data.val = 0;
         }
@@ -1839,9 +1839,9 @@ namespace DCF77_Day_Decoder {
             case OFFSET_DAY_4: day_data.val +=  0x4*tick_value; break;
             case OFFSET_DAY_8: day_data.val +=  0x8*tick_value; break;
             case OFFSET_DAY_10: day_data.val += 0x10*tick_value; break;
-            case OFFSET_DAY_20: day_data.val += 0x20*tick_value;
-                hamming_binning<day_bins, 6, false>(bins, day_data); break;
-            case OFFSET_DAY_PROCESS: compute_max_index(bins);
+            case OFFSET_DAY_20: day_data.val += 0x20*tick_value; break;
+            case OFFSET_DAY_PROCESS: hamming_binning<day_bins, 6, false>(bins, day_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: day_data.val = 0;
         }
@@ -2370,9 +2370,9 @@ namespace DCF77_Second_Decoder {
     }
 
 #ifdef MSF60    
-    #define TICK_RETARD 2
-#else
     #define TICK_RETARD 1
+#else
+    #define TICK_RETARD 2
 #endif    
     
     uint8_t get_second() {
