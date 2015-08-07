@@ -1593,7 +1593,7 @@ namespace DCF77_Decade_Decoder {
 
             case OFFSET_DECADE_PROCESS: hamming_binning<decade_bins, 4, false>(bins, decade_data);
                 compute_max_index(bins);
-                std::cout << "Process Decade: " << (int) decade_data.val << "\n";
+                //std::cout << "Process Decade: " << (int) decade_data.val << "\n";
                 // fall through on purpose
             default: decade_data.val = 0;
         }
@@ -1657,7 +1657,7 @@ namespace DCF77_Year_Decoder {
 
             case OFFSET_YEAR_PROCESS: hamming_binning<year_bins, 4, false>(bins, year_data);
                 compute_max_index(bins);
-                std::cout << "Process Year: " << (int) year_data.val << "\n";
+                //std::cout << "Process Year: " << (int) year_data.val << "\n";
                 // fall through on purpose
             default: year_data.val = 0;
         }
@@ -3107,7 +3107,7 @@ namespace DCF77_Clock_Controller {
     void process_single_tick_data(const DCF77::tick_t tick_data) {
         using namespace DCF77;
 
-        std::cout << tick_data << std::endl;
+        //std::cout << tick_data << std::endl;
 
         time_data_t now;
         set_DCF77_encoder(now);
@@ -3208,42 +3208,42 @@ namespace DCF77_Demodulator {
             // Second marker 100ms in length (1ms - 100ms after start of second)
             case 40:
                 initial = (count > 5);
-                std::cout << "S1=" << (int)count << ",";
+                //std::cout << "S1=" << (int)count << ",";
                 count=0;
                 break;
 
             case 35:
-                std::cout << "X1=" << (int)count << ",";
+                //std::cout << "X1=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
             case 30:
                 bitA = (count > 3);
-                std::cout << "S2=" << (int)count << ",";
+                //std::cout << "S2=" << (int)count << ",";
                 count = 0;
                 break;
 
             case 25:
-                std::cout << "X2=" << (int)count << ",";
+                //std::cout << "X2=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
             case 20:
                 bitB = (count > 3);
-                std::cout << "S3=" << (int)count << ",";
+                //std::cout << "S3=" << (int)count << ",";
                 count = 0;
                 break;
 
             case 16:
-                std::cout << "X3=" << (int)count << ",";
+                //std::cout << "X3=" << (int)count << ",";
                 count=0;
                 break;
 
                 // this case reads 301ms - 400ms after start of second
             case 0:
-                std::cout << "S4=" << (int)count << ",";
+                //std::cout << "S4=" << (int)count << ",";
                 trail = (count > 8);
 
                 // If all five sections are High then must be MM
