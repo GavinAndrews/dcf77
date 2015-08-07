@@ -1404,9 +1404,10 @@ namespace DCF77_Naive_Bitstream_Decoder {
 namespace DCF77_Flag_Decoder {
 
     bool abnormal_transmitter_operation;
+    int8_t leap_second_scheduled;
+
     int8_t timezone_change_scheduled;
     int8_t uses_summertime;
-    int8_t leap_second_scheduled;
     int8_t date_parity;
 
     void cummulate(int8_t &average, bool count_up) {
@@ -1419,19 +1420,30 @@ namespace DCF77_Flag_Decoder {
 
 #ifdef MSF60
 
-    int8_t year_parity;
-    int8_t weekday_parity;
-    int8_t time_parity;
+    int8_t year_parity;     // 54B = Decade + Year 17A-24A
+    int8_t weekday_parity;  // 56B = Day-of-week 36A-38A
+    int8_t time_parity;     // 57B = Hour + Minute 39A-51A
+
+    // Parity Bits are:
+    //
+    // year_parity      54B = Decade + Year 17A-24A
+    // date_parity      55B = Month + Day of Month 25A-35a
+    // weekday_parit    56B = Day-of-week 36A-38A
+    // time_parity      57B = Hour + Minute 39A-51A
+    //
+    // Note that these bits are not really used anywhere (as per the DCF77 implementation)
+    // so are maintained for information only
 
     void setup() {
 
-        abnormal_transmitter_operation = 0;
+        abnormal_transmitter_operation = false;     // Not present in MSF60
+        leap_second_scheduled = 0;                  // Amazingly! Not present in MSF60
+
         timezone_change_scheduled = 0;
-        leap_second_scheduled = 0;
         uses_summertime = 0;
-        date_parity = 0;
 
         year_parity = 0;
+        date_parity = 0;
         weekday_parity = 0;
         time_parity = 0;
     }
@@ -1533,6 +1545,7 @@ namespace DCF77_Flag_Decoder {
         return abnormal_transmitter_operation;
     }
 
+    // Beware that MSF60 doesn't seem to warn of upcoming leap second so we are likely to just lose sync
     bool get_leap_second_scheduled() {
         return leap_second_scheduled > 0;
     }
