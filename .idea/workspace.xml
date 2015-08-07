@@ -13,6 +13,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7827c196-d1ec-49b3-b77a-61460878f51c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dcf77.cpp" afterPath="$PROJECT_DIR$/dcf77.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/standalone.cpp" afterPath="$PROJECT_DIR$/standalone.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <list id="c484f79d-6ac3-4121-9e92-7bf5fd23caec" name="temp" comment="" />
@@ -35,39 +36,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="dcf77.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="dcf77.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dcf77.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="1895" column="33" selection-start-line="1895" selection-start-column="33" selection-end-line="1895" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.8142165">
+              <caret line="3290" column="6" selection-start-line="3290" selection-start-column="6" selection-end-line="3290" selection-end-column="6" />
               <folding>
                 <element signature="e#5201#5265#0" expanded="true" />
                 <element signature="e#35418#43616#0" expanded="true" />
                 <element signature="e#49641#54127#0" expanded="true" />
-                <element signature="e#84343#91492#0" expanded="true" />
-                <element signature="e#91765#91786#0" expanded="true" />
-                <element signature="e#125219#126168#0" expanded="true" />
-                <element signature="e#130047#130098#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dcf77.cpp" pinned="false" current-in-tab="true">
-        <entry file="vcs://E:\Users\Gavin\Projects\dcf77\dcf77.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.27508092">
-              <caret line="10" column="67" selection-start-line="10" selection-start-column="67" selection-end-line="10" selection-end-column="67" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="capture_20150804.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/capture_20150804.log">
+      <file leaf-file-name="standalone.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/standalone.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="50" column="58" selection-start-line="50" selection-start-column="58" selection-end-line="50" selection-end-column="58" />
+              <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -77,57 +64,7 @@
         <entry file="file://$PROJECT_DIR$/dcf77.h">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="514" column="9" selection-start-line="514" selection-start-column="7" selection-end-line="514" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="standalone.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/standalone.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="42" selection-start-line="15" selection-start-column="42" selection-end-line="15" selection-end-column="42" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ostream" pinned="false" current-in-tab="false">
-        <entry file="file://P:/Program Files/mingw-w64/i686-4.9.1-posix-dwarf-rt_v3-rev0/mingw32/i686-w64-mingw32/include/c++/ostream">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="563" column="4" selection-start-line="563" selection-start-column="4" selection-end-line="563" selection-end-column="4" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DCF77_Scope.ino" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/DCF77_Scope/DCF77_Scope.ino">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Simple_Clock.ino" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Simple_Clock/Simple_Clock.ino">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Swiss_Army_Debug_Helper.ino" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Swiss_Army_Debug_Helper/Swiss_Army_Debug_Helper.ino">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="118" column="66" selection-start-line="118" selection-start-column="4" selection-end-line="118" selection-end-column="66" />
+              <caret line="205" column="0" selection-start-line="205" selection-start-column="0" selection-end-line="214" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -380,17 +317,17 @@
     <frame x="31" y="3" width="1780" height="1105" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2152698" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2152698" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33367556" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18359375" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33675563" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33572894" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32854208" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24913892" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3449692" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5184805" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -402,22 +339,22 @@
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33588517" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33367556" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18359375" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33684212" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33641025" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24381828" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2152698" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24956872" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24913892" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.40657085" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.51950717" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -445,41 +382,19 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/standalone.cpp</url>
-          <line>10</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/dcf77.cpp</url>
-          <line>2763</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
-          <line>3230</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
-          <line>1644</line>
-          <option name="timeStamp" value="41" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
-          <line>1643</line>
-          <option name="timeStamp" value="42" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
-          <line>1669</line>
-          <option name="timeStamp" value="44" />
+          <line>2528</line>
+          <option name="timeStamp" value="46" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="46" />
+      <option name="time" value="47" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
         <watch expression="((BCD::bcd_t)(decade_data)).val" />
+        <watch expression="((const DCF77::time_data_t &amp;)(decoded_time)).second" />
+        <watch expression="((struct {...})(((BCD::bcd_t)(((const DCF77::time_data_t &amp;)(decoded_time)).minute)).digit)).hi" />
+        <watch expression="((struct {...})(((BCD::bcd_t)(((const DCF77::time_data_t &amp;)(decoded_time)).minute)).digit)).lo" />
       </configuration>
     </watches-manager>
   </component>
@@ -548,10 +463,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -620,10 +531,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -676,10 +583,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -700,10 +603,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -724,10 +623,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -748,10 +643,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -793,10 +684,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -824,10 +711,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -855,10 +738,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -871,10 +750,6 @@
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -932,14 +807,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/standalone.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="15" column="42" selection-start-line="15" selection-start-column="42" selection-end-line="15" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/capture_20150804.log">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -951,23 +818,27 @@
     <entry file="file://$PROJECT_DIR$/dcf77.h">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="514" column="9" selection-start-line="514" selection-start-column="7" selection-end-line="514" selection-end-column="9" />
+          <caret line="205" column="0" selection-start-line="205" selection-start-column="0" selection-end-line="214" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/standalone.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dcf77.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="1895" column="33" selection-start-line="1895" selection-start-column="33" selection-end-line="1895" selection-end-column="33" />
+        <state vertical-scroll-proportion="0.8142165">
+          <caret line="3290" column="6" selection-start-line="3290" selection-start-column="6" selection-end-line="3290" selection-end-column="6" />
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
             <element signature="e#49641#54127#0" expanded="true" />
-            <element signature="e#84343#91492#0" expanded="true" />
-            <element signature="e#91765#91786#0" expanded="true" />
-            <element signature="e#125219#126168#0" expanded="true" />
-            <element signature="e#130047#130098#0" expanded="true" />
           </folding>
         </state>
       </provider>
