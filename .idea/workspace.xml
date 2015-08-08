@@ -13,7 +13,6 @@
   <component name="ChangeListManager">
     <list default="true" id="7827c196-d1ec-49b3-b77a-61460878f51c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dcf77.cpp" afterPath="$PROJECT_DIR$/dcf77.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/standalone.cpp" afterPath="$PROJECT_DIR$/standalone.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <list id="c484f79d-6ac3-4121-9e92-7bf5fd23caec" name="temp" comment="" />
@@ -36,25 +35,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="dcf77.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="dcf77.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dcf77.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8142165">
-              <caret line="3290" column="6" selection-start-line="3290" selection-start-column="6" selection-end-line="3290" selection-end-column="6" />
+            <state vertical-scroll-proportion="-10.551724">
+              <caret line="2222" column="0" selection-start-line="2222" selection-start-column="0" selection-end-line="2222" selection-end-column="0" />
               <folding>
                 <element signature="e#5201#5265#0" expanded="true" />
                 <element signature="e#35418#43616#0" expanded="true" />
-                <element signature="e#49641#54127#0" expanded="true" />
+                <element signature="e#43644#45241#0" expanded="true" />
+                <element signature="e#49721#54207#0" expanded="true" />
+                <element signature="e#76574#76617#0" expanded="true" />
+                <element signature="e#85483#92632#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="standalone.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="standalone.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/standalone.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+            <state vertical-scroll-proportion="1.0608">
+              <caret line="39" column="12" selection-start-line="39" selection-start-column="12" selection-end-line="39" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -63,8 +65,8 @@
       <file leaf-file-name="dcf77.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dcf77.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="205" column="0" selection-start-line="205" selection-start-column="0" selection-end-line="214" selection-end-column="35" />
+            <state vertical-scroll-proportion="-11.344828">
+              <caret line="302" column="34" selection-start-line="302" selection-start-column="6" selection-end-line="302" selection-end-column="34" />
               <folding />
             </state>
           </provider>
@@ -99,10 +101,10 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="31" />
-    <option name="y" value="3" />
-    <option name="width" value="1780" />
-    <option name="height" value="1105" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1176" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -224,21 +226,21 @@
     <property name="recentsLimit" value="5" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../RadioClock-MSF/msf.cpp" />
     <property name="restartRequiresConfirmation" value="true" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="256" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="295" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="256" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="295" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="256" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="295" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="931" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="970" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="256" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="295" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="255" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="294" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="257" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="296" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="931" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="970" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
   </component>
   <component name="RunManager" selected="Application.dcf77">
@@ -310,51 +312,57 @@
       <option name="project" value="LOCAL" />
       <updated>1438673304180</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Display decoded time">
+      <created>1438966258991</created>
+      <option name="number" value="00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1438966258991</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="31" y="3" width="1780" height="1105" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1176" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2152698" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33367556" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33205742" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18359375" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33572894" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32854208" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24913892" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.37511963" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32822967" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.1780822" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5184805" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28708133" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33367556" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33301434" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18359375" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33641025" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.14168377" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32854208" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2152698" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291866" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24913892" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1780822" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.51950717" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28708133" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -376,18 +384,34 @@
     <MESSAGE value="Tidy up integrated Flag Code" />
     <MESSAGE value="Tweaking the decoding... having trouble making progress" />
     <MESSAGE value="Adding some logging" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding some logging" />
+    <MESSAGE value="Display decoded time" />
+    <option name="LAST_COMMIT_MESSAGE" value="Display decoded time" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/dcf77.cpp</url>
-          <line>2528</line>
-          <option name="timeStamp" value="46" />
+          <line>2559</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
+          <line>2584</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
+          <line>2622</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/dcf77.cpp</url>
+          <line>2646</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="47" />
+      <option name="time" value="66" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -462,7 +486,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -530,7 +557,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -582,7 +612,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -602,7 +635,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -622,7 +658,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -642,7 +681,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -683,7 +725,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -710,7 +755,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -737,7 +785,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -749,7 +800,10 @@
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -817,29 +871,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dcf77.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="205" column="0" selection-start-line="205" selection-start-column="0" selection-end-line="214" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/standalone.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+        <state vertical-scroll-proportion="-11.344828">
+          <caret line="302" column="34" selection-start-line="302" selection-start-column="6" selection-end-line="302" selection-end-column="34" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dcf77.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8142165">
-          <caret line="3290" column="6" selection-start-line="3290" selection-start-column="6" selection-end-line="3290" selection-end-column="6" />
+        <state vertical-scroll-proportion="-10.551724">
+          <caret line="2222" column="0" selection-start-line="2222" selection-start-column="0" selection-end-line="2222" selection-end-column="0" />
           <folding>
             <element signature="e#5201#5265#0" expanded="true" />
             <element signature="e#35418#43616#0" expanded="true" />
-            <element signature="e#49641#54127#0" expanded="true" />
+            <element signature="e#43644#45241#0" expanded="true" />
+            <element signature="e#49721#54207#0" expanded="true" />
+            <element signature="e#76574#76617#0" expanded="true" />
+            <element signature="e#85483#92632#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/standalone.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.0608">
+          <caret line="39" column="12" selection-start-line="39" selection-start-column="12" selection-end-line="39" selection-end-column="12" />
+          <folding />
         </state>
       </provider>
     </entry>

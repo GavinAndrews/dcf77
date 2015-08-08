@@ -1154,7 +1154,7 @@ namespace DCF77_Encoder {
         // bit B 53-58 // flags and parity
         data.B.byte_4 = set_bit(0, 4, now.timezone_change_scheduled);
         data.B.byte_4 = set_bit(data.B.byte_4, 5, !parity(now.year.val));
-        data.B.byte_4 = set_bit(data.B.byte_4, 6, !parity(now.day.val));
+        data.B.byte_4 = set_bit(data.B.byte_4, 6, !(parity(now.month.val)^parity(now.day.val)));    // TODO CHECK!!! Parity should include Month and Day
         data.B.byte_4 = set_bit(data.B.byte_4, 7, !parity(now.weekday.val));
         const uint8_t time_parity =	!(parity(now.hour.digit.hi) ^
                                          parity(now.hour.digit.lo) ^
@@ -2057,9 +2057,7 @@ namespace DCF77_Second_Decoder {
         DCF77_Encoder::autoset_control_bits(convolution_clock);
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
-
-        //TODO DISABLE CONVOLUTION FOR NOW
-        //prediction_match = 0;
+        prediction_match = 0;
     }
 
 #ifdef MSF60
@@ -2068,7 +2066,8 @@ namespace DCF77_Second_Decoder {
         using namespace Arithmetic_Tools;
 
         // determine sync lock
-        if (DCF77_Second_Decoder::bins.max - DCF77_Second_Decoder::bins.noise_max <= lock_threshold || get_second() == 3) {
+        if (DCF77_Second_Decoder::bins.max - DCF77_Second_Decoder::bins.noise_max <= lock_threshold ||
+            get_second() == 3) {
             // after a lock is acquired this happens only once per minute and it is
             // reasonable cheap to process,
             //
@@ -2078,7 +2077,7 @@ namespace DCF77_Second_Decoder {
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
 
             const uint8_t convolution_weight = 50;
-            if (DCF77_Second_Decoder::bins.max > 255-convolution_weight) {
+            if (DCF77_Second_Decoder::bins.max > 255 - convolution_weight) {
                 // If we know we can not raise the maximum any further we
                 // will lower the noise floor instead.
                 for (uint8_t bin_index = 0; bin_index < DCF77_Second_Decoder::seconds_per_minute; ++bin_index) {
@@ -2096,10 +2095,19 @@ namespace DCF77_Second_Decoder {
                 prediction_match += 6;
             }
         } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
-            for (uint8_t current_byte_index = 0, current_byte_A_value = convolution_kernel.A.byte_0, current_byte_B_value = convolution_kernel.B.byte_0; current_byte_index < 6; current_byte_index++, current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index], current_byte_B_value = (&(convolution_kernel.B.byte_0))[current_byte_index]) {
+
+            for (uint8_t current_byte_index = 0; current_byte_index < 6; current_byte_index++) {
+
+                uint8_t current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index];
+                uint8_t current_byte_B_value = (&(convolution_kernel.B.byte_0))[current_byte_index];
+
                 // bit 17 is where the convolution kernel starts
-                for (uint8_t current_bit_index = 0, bin = bin>16? bin-17: bin + DCF77_Second_Decoder::seconds_per_minute-17; current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2); current_bit_index++, current_byte_A_value >>= 1, current_byte_B_value >>= 1, bin = bin>0? bin-1: DCF77_Second_Decoder::seconds_per_minute-1) {
-                    const bool is_match = (tick_data == (current_byte_A_value<<1 & 2) | (current_byte_B_value & 1));
+                for (uint8_t current_bit_index = 0, bin = bin > 16 ? bin - 17 : bin + DCF77_Second_Decoder::seconds_per_minute - 17;
+                     current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2);
+                     current_bit_index++, current_byte_A_value >>= 1, current_byte_B_value >>= 1, bin = bin > 0 ? bin - 1 : DCF77_Second_Decoder::seconds_per_minute - 1) {
+
+                    const bool is_match = (tick_data == (current_byte_A_value << 1 & 2) | (current_byte_B_value & 1));
+
                     DCF77_Second_Decoder::bins.data[bin] += is_match;
 
                     if (bin == DCF77_Second_Decoder::bins.max_index) {
@@ -2109,7 +2117,9 @@ namespace DCF77_Second_Decoder {
             }
         }
 
-        DCF77_Second_Decoder::bins.tick = DCF77_Second_Decoder::bins.tick<DCF77_Second_Decoder::seconds_per_minute-1? DCF77_Second_Decoder::bins.tick+1: 0;
+        DCF77_Second_Decoder::bins.tick =
+                DCF77_Second_Decoder::bins.tick < DCF77_Second_Decoder::seconds_per_minute - 1 ?
+                DCF77_Second_Decoder::bins.tick + 1 : 0;
     }
 
     uint8_t get_previous_n_tick(uint8_t n) {
