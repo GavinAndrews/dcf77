@@ -470,11 +470,12 @@ namespace DCF77_Encoder {
         // BST
         // timezone change may only happen at the last sunday of march / october
         // the last sunday is always somewhere in [25-31]
-
         // Wintertime --> Summertime happens at 01:00 UTC == 01:00 GMT == 01:00 BST,
         // Summertime --> Wintertime happens at 01:00 UTC == 01:00 GMT == 02:00 BST
+        // According to https://en.wikipedia.org/wiki/British_Summer_Time
+        // BST begins at 01:00 GMT on the last Sunday of March and ends at 01:00 GMT (02:00 BST) on the last Sunday of October.
 
-        //TODO Check the rules and check the logic below
+        // Rules seem identical to CEST so leave this logic in place!
 
         // CEST
         // timezone change may only happen at the last sunday of march / october
@@ -575,6 +576,18 @@ namespace DCF77_Encoder {
             }
         }
     }
+
+    //
+    // Leap seconds for MSF60
+    //
+    // https://en.wikipedia.org/wiki/Time_from_NPL
+    //
+    // Shortcomings of the current signal format
+    // MSF does not broadcast any explicit advance warning of upcoming leap seconds which occur less than once a year on
+    // average. The only indication is a change in the number of padding bits before the time code during the minute
+    // before the leap second. Therefore, unless a leap-second announcement is manually entered into a receiver in advance,
+    // it may take some time until an autonomous MSF receiver regains synchronization with UTC after a leap second
+    // (especially if the reception is not robust at the time of the leap second).
 
     bool verify_leap_second_scheduled(const DCF77::time_data_t &now, const bool assume_leap_second) {
         // If day or month are unknown we default to "no leap second" because this is alway a very good guess.
@@ -2057,7 +2070,9 @@ namespace DCF77_Second_Decoder {
         DCF77_Encoder::autoset_control_bits(convolution_clock);
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
-        prediction_match = 0;
+
+        if (prediction_match != 0) std::cout << "\nEnable Convolution Match\n";
+         prediction_match = 0;
     }
 
 #ifdef MSF60
@@ -2096,6 +2111,9 @@ namespace DCF77_Second_Decoder {
             }
         } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
 
+            int count=0;
+            int match=0;
+
             for (uint8_t current_byte_index = 0; current_byte_index < 6; current_byte_index++) {
 
                 uint8_t current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index];
@@ -2108,6 +2126,9 @@ namespace DCF77_Second_Decoder {
 
                     const bool is_match = (tick_data == (current_byte_A_value << 1 & 2) | (current_byte_B_value & 1));
 
+                    count++;
+                    match += is_match;
+
                     DCF77_Second_Decoder::bins.data[bin] += is_match;
 
                     if (bin == DCF77_Second_Decoder::bins.max_index) {
@@ -2115,6 +2136,8 @@ namespace DCF77_Second_Decoder {
                     }
                 }
             }
+
+            std::cout<< "\nBit Matches: " << match << "/" << count << "\n";
         }
 
         DCF77_Second_Decoder::bins.tick =
@@ -2495,13 +2518,17 @@ namespace DCF77_Local_Clock {
     void process_1_Hz_tick(const DCF77::time_data_t &decoded_time) {
         uint8_t quality_factor = DCF77_Clock_Controller::get_overall_quality_factor();
 
+        std::cout << (int)quality_factor << " ";
+
         if (quality_factor > 1) {
             if (clock_state != synced) {
                 DCF77_Clock_Controller::sync_achieved_event_handler();
+                std::cout << "Clock State Change, Now: synced\n";
                 clock_state = synced;
             }
         } else if (clock_state == synced) {
             DCF77_Clock_Controller::sync_lost_event_handler();
+            std::cout << "Clock State Change, Now: locked\n";
             clock_state = locked;
         }
 
@@ -2510,6 +2537,7 @@ namespace DCF77_Local_Clock {
                 case useless: {
                     if (quality_factor > 0) {
                         clock_state = dirty;
+                        std::cout << "Clock State Change, Now: dirty\n";
                         break;  // goto dirty state
                     } else {
                         second_toggle = !second_toggle;
@@ -2520,6 +2548,7 @@ namespace DCF77_Local_Clock {
                 case dirty: {
                     if (quality_factor == 0) {
                         clock_state = useless;
+                        std::cout << "Clock State Change, Now: useless\n";
                         second_toggle = !second_toggle;
                         DCF77_Encoder::reset(local_clock_time);
                         return;
@@ -2557,6 +2586,7 @@ namespace DCF77_Local_Clock {
                         second_toggle = !second_toggle;
                         return;
                     } else {
+                        std::cout << "Clock State Change, Now: unlocked\n";
                         clock_state = unlocked;
                         DCF77_Clock_Controller::phase_lost_event_handler();
                         unlocked_seconds = 0;
@@ -2581,6 +2611,7 @@ namespace DCF77_Local_Clock {
                             //     missed leap seconds.
                             // We ignore this issue as it is not worse than running in
                             // free mode.
+                            std::cout << "Clock State Change, Now: locked\n";
                             clock_state = locked;
                             if (tick < 200) {
                                 // time output was handled at most 200 ms before
@@ -2620,6 +2651,7 @@ namespace DCF77_Local_Clock {
                 unlocked_seconds = 1;
 
                 // 1 Hz tick missing for more than 1200ms
+                std::cout << "Clock State Change, Now: unlocked\n";
                 clock_state = unlocked;
                 DCF77_Clock_Controller::phase_lost_event_handler();
             }
@@ -2644,6 +2676,7 @@ namespace DCF77_Local_Clock {
 
                 ++unlocked_seconds;
                 if (unlocked_seconds > max_unlocked_seconds) {
+                    std::cout << "Clock State Change, Now: free\n";
                     clock_state = free;
                 }
             }
@@ -2860,6 +2893,15 @@ namespace DCF77_Clock_Controller {
 
     uint8_t get_overall_quality_factor() {
         using namespace Arithmetic_Tools;
+
+        std::cout << "\nQDemodulator=" << (int)DCF77_Demodulator::get_quality_factor() << ",";
+        std::cout << "QSecond=" << (int)DCF77_Second_Decoder::get_quality_factor() << ",";
+        std::cout << "QMinute=" << (int)DCF77_Minute_Decoder::get_quality_factor() << ",";
+        std::cout << "QHour=" << (int)DCF77_Hour_Decoder::get_quality_factor() << ",";
+        std::cout << "QDay=" << (int)DCF77_Day_Decoder::get_quality_factor() << ",";
+        std::cout << "QMonth=" << (int)DCF77_Month_Decoder::get_quality_factor() << ",";
+        std::cout << "QYear=" << (int)DCF77_Year_Decoder::get_quality_factor() << ",";
+        std::cout << "QWeekDay=" << (int)DCF77_Weekday_Decoder::get_quality_factor() << "\n";
 
         uint8_t quality_factor = DCF77_Demodulator::get_quality_factor();
         minimize(quality_factor, DCF77_Second_Decoder::get_quality_factor());

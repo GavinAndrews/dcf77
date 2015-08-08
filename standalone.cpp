@@ -9,6 +9,12 @@
 
 void output_handler(const DCF77_Clock::time_t &decoded_time) {
 
+    if (decoded_time.second.val!=0) return;
+
+    if ((decoded_time.hour.val==3)&&(decoded_time.minute.val==0)) {
+        std::cout <<"3am\n";
+    }
+
     std::cout << "OutTime: ";
     std::cout << (int)decoded_time.day.digit.hi << (int)decoded_time.day.digit.lo;
     std::cout << "/" << (int)decoded_time.month.digit.hi << (int)decoded_time.month.digit.lo;
