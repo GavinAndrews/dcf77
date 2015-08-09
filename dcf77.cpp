@@ -1994,7 +1994,7 @@ namespace DCF77_Minute_Decoder {
             case OFFSET_MINUTE_40: minute_data.val += 0x40*tick_value; break;
 //            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
 //                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
-            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 8, true>(bins, minute_data);
+            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 8, /*true*/false>(bins, minute_data);
                 compute_max_index(bins);
                 // fall through on purpose
             default: minute_data.val = 0;
@@ -2071,7 +2071,9 @@ namespace DCF77_Second_Decoder {
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
 
-        if (prediction_match != 0) std::cout << "\nEnable Convolution Match\n";
+        if (prediction_match != 0) {
+            std::cout << "\nEnable Convolution Match\n";
+        }
          prediction_match = 0;
     }
 
@@ -2090,6 +2092,8 @@ namespace DCF77_Second_Decoder {
             // the sync mark was detected
 
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
+
+            std::cout<< "CB Max Index: "<<(int) bins.max_index << "\n";
 
             const uint8_t convolution_weight = 50;
             if (DCF77_Second_Decoder::bins.max > 255 - convolution_weight) {
@@ -2111,33 +2115,32 @@ namespace DCF77_Second_Decoder {
             }
         } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
 
-            int count=0;
-            int match=0;
+            // bit 17 is where the convolution kernel starts
+            uint8_t bin = bins.tick > 17 ? bins.tick-17 : seconds_per_minute-1;
 
             for (uint8_t current_byte_index = 0; current_byte_index < 6; current_byte_index++) {
 
                 uint8_t current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index];
                 uint8_t current_byte_B_value = (&(convolution_kernel.B.byte_0))[current_byte_index];
 
-                // bit 17 is where the convolution kernel starts
-                for (uint8_t current_bit_index = 0, bin = bin > 16 ? bin - 17 : bin + DCF77_Second_Decoder::seconds_per_minute - 17;
+                for (uint8_t current_bit_index = 0;
                      current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2);
-                     current_bit_index++, current_byte_A_value >>= 1, current_byte_B_value >>= 1, bin = bin > 0 ? bin - 1 : DCF77_Second_Decoder::seconds_per_minute - 1) {
+                     current_bit_index++) {
 
-                    const bool is_match = (tick_data == (current_byte_A_value << 1 & 2) | (current_byte_B_value & 1));
-
-                    count++;
-                    match += is_match;
+                    const bool is_match = (tick_data == (((current_byte_A_value << 1) & 2) | (current_byte_B_value & 1)));
 
                     DCF77_Second_Decoder::bins.data[bin] += is_match;
 
                     if (bin == DCF77_Second_Decoder::bins.max_index) {
                         prediction_match += is_match;
                     }
+
+                    current_byte_A_value >>= 1;
+                    current_byte_B_value >>= 1;
+
+                    bin = bin > 0 ? bin - 1 : DCF77_Second_Decoder::seconds_per_minute - 1;
                 }
             }
-
-            std::cout<< "\nBit Matches: " << match << "/" << count << "\n";
         }
 
         DCF77_Second_Decoder::bins.tick =
@@ -2237,6 +2240,8 @@ namespace DCF77_Second_Decoder {
             // the sync mark was detected
 
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
+
+            std::cout<< "SMB Max Index: "<<(int) bins.max_index << "\n";
         }
     }
 
@@ -2518,7 +2523,7 @@ namespace DCF77_Local_Clock {
     void process_1_Hz_tick(const DCF77::time_data_t &decoded_time) {
         uint8_t quality_factor = DCF77_Clock_Controller::get_overall_quality_factor();
 
-        std::cout << (int)quality_factor << " ";
+        //std::cout << (int)quality_factor << " ";
 
         if (quality_factor > 1) {
             if (clock_state != synced) {
@@ -2894,14 +2899,14 @@ namespace DCF77_Clock_Controller {
     uint8_t get_overall_quality_factor() {
         using namespace Arithmetic_Tools;
 
-        std::cout << "\nQDemodulator=" << (int)DCF77_Demodulator::get_quality_factor() << ",";
-        std::cout << "QSecond=" << (int)DCF77_Second_Decoder::get_quality_factor() << ",";
-        std::cout << "QMinute=" << (int)DCF77_Minute_Decoder::get_quality_factor() << ",";
-        std::cout << "QHour=" << (int)DCF77_Hour_Decoder::get_quality_factor() << ",";
-        std::cout << "QDay=" << (int)DCF77_Day_Decoder::get_quality_factor() << ",";
-        std::cout << "QMonth=" << (int)DCF77_Month_Decoder::get_quality_factor() << ",";
-        std::cout << "QYear=" << (int)DCF77_Year_Decoder::get_quality_factor() << ",";
-        std::cout << "QWeekDay=" << (int)DCF77_Weekday_Decoder::get_quality_factor() << "\n";
+//        std::cout << "\nQMod=" << (int)DCF77_Demodulator::get_quality_factor() << ",";
+//        std::cout << "QSecond=" << (int)DCF77_Second_Decoder::get_quality_factor() << ",";
+//        std::cout << "QMinute=" << (int)DCF77_Minute_Decoder::get_quality_factor() << ",";
+//        std::cout << "QHour=" << (int)DCF77_Hour_Decoder::get_quality_factor() << ",";
+//        std::cout << "QDay=" << (int)DCF77_Day_Decoder::get_quality_factor() << ",";
+//        std::cout << "QMonth=" << (int)DCF77_Month_Decoder::get_quality_factor() << ",";
+//        std::cout << "QYear=" << (int)DCF77_Year_Decoder::get_quality_factor() << ",";
+//        std::cout << "QWeekDay=" << (int)DCF77_Weekday_Decoder::get_quality_factor() << "\n";
 
         uint8_t quality_factor = DCF77_Demodulator::get_quality_factor();
         minimize(quality_factor, DCF77_Second_Decoder::get_quality_factor());
