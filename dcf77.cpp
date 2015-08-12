@@ -2109,11 +2109,27 @@ namespace DCF77_Second_Decoder {
         }
 
         if (tick_data == min_marker) {
-            bounded_increment<6>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
-            if (DCF77_Second_Decoder::bins.tick == DCF77_Second_Decoder::bins.max_index) {
-                prediction_match += 6;
-            }
+            //TODO T
+//            bounded_increment<6>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+//            if (DCF77_Second_Decoder::bins.tick == DCF77_Second_Decoder::bins.max_index) {
+//                prediction_match += 6;
+//            }
         } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
+
+            // Convolution spans the following....
+            // Byte0 to Byte5 bit 2 inclusive i.e. Byte0 0..8, Byte1 0..8, ..., Byte5 0..2
+
+            // byte_0A:	bit 17-24	// year
+            // byte_1A:	bit 25-32	// month + bit 0-2 day
+            // byte_2A:	bit 33-40	// b it 3-5 day + weekday + bit 0-1 hour
+            // byte_3A:	bit 41-48	// bit 2-5 hour + bit 0-3 minute
+            // byte_4A:	bit 49-56	// bit 4-6 minute + 11110
+            // byte_5A:	bit 57-59	// 011
+
+            // i.e. 17 to 59 of the transmision, i.e. Everything from Second 17 through to the
+            // minute end
+
+            // The convolution maximum will occur at the centre so (59+17)/2 = 33.5
 
             // bit 17 is where the convolution kernel starts
             uint8_t bin = bins.tick > 17 ? bins.tick-17 : seconds_per_minute-1;
@@ -2131,9 +2147,10 @@ namespace DCF77_Second_Decoder {
 
                     DCF77_Second_Decoder::bins.data[bin] += is_match;
 
-                    if (bin == DCF77_Second_Decoder::bins.max_index) {
-                        prediction_match += is_match;
-                    }
+                    //TODO T
+//                    if (bin == DCF77_Second_Decoder::bins.max_index) {
+//                        prediction_match += is_match;
+//                    }
 
                     current_byte_A_value >>= 1;
                     current_byte_B_value >>= 1;
