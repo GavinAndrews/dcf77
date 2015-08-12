@@ -470,11 +470,12 @@ namespace DCF77_Encoder {
         // BST
         // timezone change may only happen at the last sunday of march / october
         // the last sunday is always somewhere in [25-31]
-
         // Wintertime --> Summertime happens at 01:00 UTC == 01:00 GMT == 01:00 BST,
         // Summertime --> Wintertime happens at 01:00 UTC == 01:00 GMT == 02:00 BST
+        // According to https://en.wikipedia.org/wiki/British_Summer_Time
+        // BST begins at 01:00 GMT on the last Sunday of March and ends at 01:00 GMT (02:00 BST) on the last Sunday of October.
 
-        //TODO Check the rules and check the logic below
+        // Rules seem identical to CEST so leave this logic in place!
 
         // CEST
         // timezone change may only happen at the last sunday of march / october
@@ -575,6 +576,18 @@ namespace DCF77_Encoder {
             }
         }
     }
+
+    //
+    // Leap seconds for MSF60
+    //
+    // https://en.wikipedia.org/wiki/Time_from_NPL
+    //
+    // Shortcomings of the current signal format
+    // MSF does not broadcast any explicit advance warning of upcoming leap seconds which occur less than once a year on
+    // average. The only indication is a change in the number of padding bits before the time code during the minute
+    // before the leap second. Therefore, unless a leap-second announcement is manually entered into a receiver in advance,
+    // it may take some time until an autonomous MSF receiver regains synchronization with UTC after a leap second
+    // (especially if the reception is not robust at the time of the leap second).
 
     bool verify_leap_second_scheduled(const DCF77::time_data_t &now, const bool assume_leap_second) {
         // If day or month are unknown we default to "no leap second" because this is alway a very good guess.
@@ -1154,7 +1167,7 @@ namespace DCF77_Encoder {
         // bit B 53-58 // flags and parity
         data.B.byte_4 = set_bit(0, 4, now.timezone_change_scheduled);
         data.B.byte_4 = set_bit(data.B.byte_4, 5, !parity(now.year.val));
-        data.B.byte_4 = set_bit(data.B.byte_4, 6, !parity(now.day.val));
+        data.B.byte_4 = set_bit(data.B.byte_4, 6, !(parity(now.month.val)^parity(now.day.val)));    // TODO CHECK!!! Parity should include Month and Day
         data.B.byte_4 = set_bit(data.B.byte_4, 7, !parity(now.weekday.val));
         const uint8_t time_parity =	!(parity(now.hour.digit.hi) ^
                                          parity(now.hour.digit.lo) ^
@@ -1404,9 +1417,10 @@ namespace DCF77_Naive_Bitstream_Decoder {
 namespace DCF77_Flag_Decoder {
 
     bool abnormal_transmitter_operation;
+    int8_t leap_second_scheduled;
+
     int8_t timezone_change_scheduled;
     int8_t uses_summertime;
-    int8_t leap_second_scheduled;
     int8_t date_parity;
 
     void cummulate(int8_t &average, bool count_up) {
@@ -1419,19 +1433,30 @@ namespace DCF77_Flag_Decoder {
 
 #ifdef MSF60
 
-    int8_t year_parity;
-    int8_t weekday_parity;
-    int8_t time_parity;
+    int8_t year_parity;     // 54B = Decade + Year 17A-24A
+    int8_t weekday_parity;  // 56B = Day-of-week 36A-38A
+    int8_t time_parity;     // 57B = Hour + Minute 39A-51A
+
+    // Parity Bits are:
+    //
+    // year_parity      54B = Decade + Year 17A-24A
+    // date_parity      55B = Month + Day of Month 25A-35a
+    // weekday_parit    56B = Day-of-week 36A-38A
+    // time_parity      57B = Hour + Minute 39A-51A
+    //
+    // Note that these bits are not really used anywhere (as per the DCF77 implementation)
+    // so are maintained for information only
 
     void setup() {
 
-        abnormal_transmitter_operation = 0;
+        abnormal_transmitter_operation = false;     // Not present in MSF60
+        leap_second_scheduled = 0;                  // Amazingly! Not present in MSF60
+
         timezone_change_scheduled = 0;
-        leap_second_scheduled = 0;
         uses_summertime = 0;
-        date_parity = 0;
 
         year_parity = 0;
+        date_parity = 0;
         weekday_parity = 0;
         time_parity = 0;
     }
@@ -1533,6 +1558,7 @@ namespace DCF77_Flag_Decoder {
         return abnormal_transmitter_operation;
     }
 
+    // Beware that MSF60 doesn't seem to warn of upcoming leap second so we are likely to just lose sync
     bool get_leap_second_scheduled() {
         return leap_second_scheduled > 0;
     }
@@ -1576,10 +1602,11 @@ namespace DCF77_Decade_Decoder {
             case OFFSET_DECADE_1: decade_data.val +=      tick_value; break;
             case OFFSET_DECADE_2: decade_data.val += 0x02*tick_value; break;
             case OFFSET_DECADE_4: decade_data.val += 0x04*tick_value; break;
-            case OFFSET_DECADE_8: decade_data.val += 0x08*tick_value;
-                hamming_binning<decade_bins, 4, false>(bins, decade_data); break;
+            case OFFSET_DECADE_8: decade_data.val += 0x08*tick_value; break;
 
-            case OFFSET_DECADE_PROCESS: compute_max_index(bins);
+            case OFFSET_DECADE_PROCESS: hamming_binning<decade_bins, 4, false>(bins, decade_data);
+                compute_max_index(bins);
+                //std::cout << "Process Decade: " << (int) decade_data.val << "\n";
                 // fall through on purpose
             default: decade_data.val = 0;
         }
@@ -1639,10 +1666,11 @@ namespace DCF77_Year_Decoder {
             case OFFSET_YEAR_1: year_data.val +=      tick_value; break;
             case OFFSET_YEAR_2: year_data.val +=  0x2*tick_value; break;
             case OFFSET_YEAR_4: year_data.val +=  0x4*tick_value; break;
-            case OFFSET_YEAR_8: year_data.val +=  0x8*tick_value;
-                hamming_binning<year_bins, 4, false>(bins, year_data); break;
+            case OFFSET_YEAR_8: year_data.val +=  0x8*tick_value; break;
 
-            case OFFSET_YEAR_PROCESS: compute_max_index(bins);
+            case OFFSET_YEAR_PROCESS: hamming_binning<year_bins, 4, false>(bins, year_data);
+                compute_max_index(bins);
+                //std::cout << "Process Year: " << (int) year_data.val << "\n";
                 // fall through on purpose
             default: year_data.val = 0;
         }
@@ -1721,10 +1749,10 @@ namespace DCF77_Month_Decoder {
             case OFFSET_MONTH_2: month_data.val +=  0x2*tick_value; break;
             case OFFSET_MONTH_4: month_data.val +=  0x4*tick_value; break;
             case OFFSET_MONTH_8: month_data.val +=  0x8*tick_value; break;
-            case OFFSET_MONTH_10: month_data.val += 0x10*tick_value;
-                hamming_binning<month_bins, 5, false>(bins, month_data); break;
+            case OFFSET_MONTH_10: month_data.val += 0x10*tick_value; break;
 
-            case OFFSET_MONTH_PROCESS: compute_max_index(bins);
+            case OFFSET_MONTH_PROCESS: hamming_binning<month_bins, 5, false>(bins, month_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: month_data.val = 0;
         }
@@ -1779,9 +1807,9 @@ namespace DCF77_Weekday_Decoder {
         switch (current_second) {
             case OFFSET_WEEKDAY_1: weekday_data.val +=      tick_value; break;
             case OFFSET_WEEKDAY_2: weekday_data.val +=  0x2*tick_value; break;
-            case OFFSET_WEEKDAY_4: weekday_data.val +=  0x4*tick_value;
-                hamming_binning<weekday_bins, 3, false>(bins, weekday_data); break;
-            case OFFSET_WEEKDAY_PROCESS: compute_max_index(bins);
+            case OFFSET_WEEKDAY_4: weekday_data.val +=  0x4*tick_value; break;
+            case OFFSET_WEEKDAY_PROCESS: hamming_binning<weekday_bins, 3, false>(bins, weekday_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: weekday_data.val = 0;
         }
@@ -1839,9 +1867,9 @@ namespace DCF77_Day_Decoder {
             case OFFSET_DAY_4: day_data.val +=  0x4*tick_value; break;
             case OFFSET_DAY_8: day_data.val +=  0x8*tick_value; break;
             case OFFSET_DAY_10: day_data.val += 0x10*tick_value; break;
-            case OFFSET_DAY_20: day_data.val += 0x20*tick_value;
-                hamming_binning<day_bins, 6, false>(bins, day_data); break;
-            case OFFSET_DAY_PROCESS: compute_max_index(bins);
+            case OFFSET_DAY_20: day_data.val += 0x20*tick_value; break;
+            case OFFSET_DAY_PROCESS: hamming_binning<day_bins, 6, false>(bins, day_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: day_data.val = 0;
         }
@@ -1900,10 +1928,12 @@ namespace DCF77_Hour_Decoder {
             case OFFSET_HOUR_8: hour_data.val +=  0x8*tick_value; break;
             case OFFSET_HOUR_10: hour_data.val += 0x10*tick_value; break;
             case OFFSET_HOUR_20: hour_data.val += 0x20*tick_value; break;
-            case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
-                hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
 
-            case OFFSET_HOUR_PROCESS: compute_max_index(bins);
+//            case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
+//                hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
+
+            case OFFSET_HOUR_PROCESS: hamming_binning<hour_bins, 7, true>(bins, hour_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: hour_data.val = 0;
         }
@@ -1962,9 +1992,10 @@ namespace DCF77_Minute_Decoder {
             case OFFSET_MINUTE_10: minute_data.val += 0x10*tick_value; break;
             case OFFSET_MINUTE_20: minute_data.val += 0x20*tick_value; break;
             case OFFSET_MINUTE_40: minute_data.val += 0x40*tick_value; break;
-            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
-                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
-            case OFFSET_MINUTE_PROCESS: compute_max_index(bins);
+//            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
+//                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
+            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 8, /*true*/false>(bins, minute_data);
+                compute_max_index(bins);
                 // fall through on purpose
             default: minute_data.val = 0;
         }
@@ -2039,7 +2070,11 @@ namespace DCF77_Second_Decoder {
         DCF77_Encoder::autoset_control_bits(convolution_clock);
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
-        prediction_match = 0;
+
+        if (prediction_match != 0) {
+            std::cout << "\nEnable Convolution Match\n";
+        }
+         prediction_match = 0;
     }
 
 #ifdef MSF60
@@ -2048,7 +2083,8 @@ namespace DCF77_Second_Decoder {
         using namespace Arithmetic_Tools;
 
         // determine sync lock
-        if (DCF77_Second_Decoder::bins.max - DCF77_Second_Decoder::bins.noise_max <= lock_threshold || get_second() == 3) {
+        if (DCF77_Second_Decoder::bins.max - DCF77_Second_Decoder::bins.noise_max <= lock_threshold ||
+            get_second() == 3) {
             // after a lock is acquired this happens only once per minute and it is
             // reasonable cheap to process,
             //
@@ -2057,8 +2093,10 @@ namespace DCF77_Second_Decoder {
 
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
 
+            std::cout<< "CB Max Index: "<<(int) bins.max_index << "\n";
+
             const uint8_t convolution_weight = 50;
-            if (DCF77_Second_Decoder::bins.max > 255-convolution_weight) {
+            if (DCF77_Second_Decoder::bins.max > 255 - convolution_weight) {
                 // If we know we can not raise the maximum any further we
                 // will lower the noise floor instead.
                 for (uint8_t bin_index = 0; bin_index < DCF77_Second_Decoder::seconds_per_minute; ++bin_index) {
@@ -2076,20 +2114,38 @@ namespace DCF77_Second_Decoder {
                 prediction_match += 6;
             }
         } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
-            for (uint8_t current_byte_index = 0, current_byte_A_value = convolution_kernel.A.byte_0, current_byte_B_value = convolution_kernel.B.byte_0; current_byte_index < 6; current_byte_index++, current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index], current_byte_B_value = (&(convolution_kernel.B.byte_0))[current_byte_index]) {
-                // bit 17 is where the convolution kernel starts
-                for (uint8_t current_bit_index = 0, bin = bin>16? bin-17: bin + DCF77_Second_Decoder::seconds_per_minute-17; current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2); current_bit_index++, current_byte_A_value >>= 1, current_byte_B_value >>= 1, bin = bin>0? bin-1: DCF77_Second_Decoder::seconds_per_minute-1) {
-                    const bool is_match = (tick_data == (current_byte_A_value<<1 & 2) | (current_byte_B_value & 1));
+
+            // bit 17 is where the convolution kernel starts
+            uint8_t bin = bins.tick > 17 ? bins.tick-17 : seconds_per_minute-1;
+
+            for (uint8_t current_byte_index = 0; current_byte_index < 6; current_byte_index++) {
+
+                uint8_t current_byte_A_value = (&(convolution_kernel.A.byte_0))[current_byte_index];
+                uint8_t current_byte_B_value = (&(convolution_kernel.B.byte_0))[current_byte_index];
+
+                for (uint8_t current_bit_index = 0;
+                     current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2);
+                     current_bit_index++) {
+
+                    const bool is_match = (tick_data == (((current_byte_A_value << 1) & 2) | (current_byte_B_value & 1)));
+
                     DCF77_Second_Decoder::bins.data[bin] += is_match;
 
                     if (bin == DCF77_Second_Decoder::bins.max_index) {
                         prediction_match += is_match;
                     }
+
+                    current_byte_A_value >>= 1;
+                    current_byte_B_value >>= 1;
+
+                    bin = bin > 0 ? bin - 1 : DCF77_Second_Decoder::seconds_per_minute - 1;
                 }
             }
         }
 
-        DCF77_Second_Decoder::bins.tick = DCF77_Second_Decoder::bins.tick<DCF77_Second_Decoder::seconds_per_minute-1? DCF77_Second_Decoder::bins.tick+1: 0;
+        DCF77_Second_Decoder::bins.tick =
+                DCF77_Second_Decoder::bins.tick < DCF77_Second_Decoder::seconds_per_minute - 1 ?
+                DCF77_Second_Decoder::bins.tick + 1 : 0;
     }
 
     uint8_t get_previous_n_tick(uint8_t n) {
@@ -2184,6 +2240,8 @@ namespace DCF77_Second_Decoder {
             // the sync mark was detected
 
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
+
+            std::cout<< "SMB Max Index: "<<(int) bins.max_index << "\n";
         }
     }
 
@@ -2370,9 +2428,9 @@ namespace DCF77_Second_Decoder {
     }
 
 #ifdef MSF60    
-    #define TICK_RETARD 2
-#else
     #define TICK_RETARD 1
+#else
+    #define TICK_RETARD 2
 #endif    
     
     uint8_t get_second() {
@@ -2465,13 +2523,17 @@ namespace DCF77_Local_Clock {
     void process_1_Hz_tick(const DCF77::time_data_t &decoded_time) {
         uint8_t quality_factor = DCF77_Clock_Controller::get_overall_quality_factor();
 
+        //std::cout << (int)quality_factor << " ";
+
         if (quality_factor > 1) {
             if (clock_state != synced) {
                 DCF77_Clock_Controller::sync_achieved_event_handler();
+                std::cout << "Clock State Change, Now: synced\n";
                 clock_state = synced;
             }
         } else if (clock_state == synced) {
             DCF77_Clock_Controller::sync_lost_event_handler();
+            std::cout << "Clock State Change, Now: locked\n";
             clock_state = locked;
         }
 
@@ -2480,6 +2542,7 @@ namespace DCF77_Local_Clock {
                 case useless: {
                     if (quality_factor > 0) {
                         clock_state = dirty;
+                        std::cout << "Clock State Change, Now: dirty\n";
                         break;  // goto dirty state
                     } else {
                         second_toggle = !second_toggle;
@@ -2490,6 +2553,7 @@ namespace DCF77_Local_Clock {
                 case dirty: {
                     if (quality_factor == 0) {
                         clock_state = useless;
+                        std::cout << "Clock State Change, Now: useless\n";
                         second_toggle = !second_toggle;
                         DCF77_Encoder::reset(local_clock_time);
                         return;
@@ -2527,6 +2591,7 @@ namespace DCF77_Local_Clock {
                         second_toggle = !second_toggle;
                         return;
                     } else {
+                        std::cout << "Clock State Change, Now: unlocked\n";
                         clock_state = unlocked;
                         DCF77_Clock_Controller::phase_lost_event_handler();
                         unlocked_seconds = 0;
@@ -2551,6 +2616,7 @@ namespace DCF77_Local_Clock {
                             //     missed leap seconds.
                             // We ignore this issue as it is not worse than running in
                             // free mode.
+                            std::cout << "Clock State Change, Now: locked\n";
                             clock_state = locked;
                             if (tick < 200) {
                                 // time output was handled at most 200 ms before
@@ -2590,6 +2656,7 @@ namespace DCF77_Local_Clock {
                 unlocked_seconds = 1;
 
                 // 1 Hz tick missing for more than 1200ms
+                std::cout << "Clock State Change, Now: unlocked\n";
                 clock_state = unlocked;
                 DCF77_Clock_Controller::phase_lost_event_handler();
             }
@@ -2614,6 +2681,7 @@ namespace DCF77_Local_Clock {
 
                 ++unlocked_seconds;
                 if (unlocked_seconds > max_unlocked_seconds) {
+                    std::cout << "Clock State Change, Now: free\n";
                     clock_state = free;
                 }
             }
@@ -2830,6 +2898,15 @@ namespace DCF77_Clock_Controller {
 
     uint8_t get_overall_quality_factor() {
         using namespace Arithmetic_Tools;
+
+//        std::cout << "\nQMod=" << (int)DCF77_Demodulator::get_quality_factor() << ",";
+//        std::cout << "QSecond=" << (int)DCF77_Second_Decoder::get_quality_factor() << ",";
+//        std::cout << "QMinute=" << (int)DCF77_Minute_Decoder::get_quality_factor() << ",";
+//        std::cout << "QHour=" << (int)DCF77_Hour_Decoder::get_quality_factor() << ",";
+//        std::cout << "QDay=" << (int)DCF77_Day_Decoder::get_quality_factor() << ",";
+//        std::cout << "QMonth=" << (int)DCF77_Month_Decoder::get_quality_factor() << ",";
+//        std::cout << "QYear=" << (int)DCF77_Year_Decoder::get_quality_factor() << ",";
+//        std::cout << "QWeekDay=" << (int)DCF77_Weekday_Decoder::get_quality_factor() << "\n";
 
         uint8_t quality_factor = DCF77_Demodulator::get_quality_factor();
         minimize(quality_factor, DCF77_Second_Decoder::get_quality_factor());
@@ -3087,7 +3164,7 @@ namespace DCF77_Clock_Controller {
     void process_single_tick_data(const DCF77::tick_t tick_data) {
         using namespace DCF77;
 
-        std::cout << tick_data << std::endl;
+        //std::cout << tick_data << std::endl;
 
         time_data_t now;
         set_DCF77_encoder(now);
@@ -3188,42 +3265,42 @@ namespace DCF77_Demodulator {
             // Second marker 100ms in length (1ms - 100ms after start of second)
             case 40:
                 initial = (count > 5);
-                std::cout << "S1=" << (int)count << ",";
+                //std::cout << "S1=" << (int)count << ",";
                 count=0;
                 break;
 
-            case 36:
-                std::cout << "X1=" << (int)count << ",";
+            case 35:
+                //std::cout << "X1=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
             case 30:
                 bitA = (count > 3);
-                std::cout << "S2=" << (int)count << ",";
+                //std::cout << "S2=" << (int)count << ",";
                 count = 0;
                 break;
 
-            case 26:
-                std::cout << "X2=" << (int)count << ",";
+            case 25:
+                //std::cout << "X2=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
             case 20:
                 bitB = (count > 3);
-                std::cout << "S3=" << (int)count << ",";
+                //std::cout << "S3=" << (int)count << ",";
                 count = 0;
                 break;
 
             case 16:
-                std::cout << "X3=" << (int)count << ",";
+                //std::cout << "X3=" << (int)count << ",";
                 count=0;
                 break;
 
                 // this case reads 301ms - 400ms after start of second
             case 0:
-                std::cout << "S4=" << (int)count << ",";
+                //std::cout << "S4=" << (int)count << ",";
                 trail = (count > 8);
 
                 // If all five sections are High then must be MM

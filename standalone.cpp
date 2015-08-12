@@ -8,13 +8,32 @@
 
 
 void output_handler(const DCF77_Clock::time_t &decoded_time) {
-    std::cout << "Hello" << std::endl;
+
+    if (decoded_time.second.val!=0) return;
+
+    if ((decoded_time.hour.val==3)&&(decoded_time.minute.val==0)) {
+        std::cout <<"3am\n";
+    }
+
+    std::cout << "OutTime: ";
+    std::cout << (int)decoded_time.day.digit.hi << (int)decoded_time.day.digit.lo;
+    std::cout << "/" << (int)decoded_time.month.digit.hi << (int)decoded_time.month.digit.lo;
+    std::cout << "/20" << (int)decoded_time.year.digit.hi << (int)decoded_time.year.digit.lo << " ";
+
+    std::cout << (int)decoded_time.hour.digit.hi << (int)decoded_time.hour.digit.lo;
+    std::cout << ":" << (int)decoded_time.minute.digit.hi << (int)decoded_time.minute.digit.lo;
+    std::cout << ":" << (int)decoded_time.second.digit.hi << (int)decoded_time.second.digit.lo;
+
+    if (decoded_time.uses_summertime) std::cout << " BST";
+
+    std::cout << std::endl;
+
 }
 
 int main() {
 
     DCF77_Clock_Controller::set_output_handler(&output_handler);
-    std::ifstream infile("capture_20150804.csv");
+    std::ifstream infile("capture_20150804b.csv");
 
     uint8_t a;
     std::string line;
