@@ -1464,12 +1464,16 @@ namespace DCF77_Flag_Decoder {
     void process_tick(const uint8_t current_second, const bool tick_value) {
 
         switch (current_second) {
-            case 53: cummulate(timezone_change_scheduled, tick_value); break;
+            case 53: cummulate(timezone_change_scheduled, tick_value);
+//              std::cout << "Process Tick53: TZ Change Coming=" << (int)tick_value << ", Average: " << (int) timezone_change_scheduled << "\n";
+                break;
             case 54: cummulate(year_parity, tick_value); break;
             case 55: cummulate(date_parity, tick_value); break;
             case 56: cummulate(weekday_parity, tick_value); break;
             case 57: cummulate(time_parity, tick_value); break;
-            case 58: cummulate(uses_summertime, tick_value); break;
+            case 58: cummulate(uses_summertime, tick_value);
+//              std::cout << "Process Tick58: Summertime=" << (int)tick_value << ", Average: " << (int) uses_summertime << "\n";
+                break;
         }
     }
 
@@ -1542,7 +1546,10 @@ namespace DCF77_Flag_Decoder {
         // HH := hh+1
         // timezone_change_scheduled will be set from hh:01 to HH:00
 
-        if (timezone_change_scheduled) {
+        // Very subtle problem here... Need to ensure that this check is correct otherwise
+        // receiver is very sensitive to noise in summertime flag around hour boundaries
+
+        if (get_timezone_change_scheduled()) {
             timezone_change_scheduled = 0;
             uses_summertime -= uses_summertime;
         }
@@ -2068,6 +2075,9 @@ namespace DCF77_Second_Decoder {
 
         // the convolution kernel shall have proper flag settings
         DCF77_Encoder::autoset_control_bits(convolution_clock);
+
+//        std::cout << "ConvolutionKernel: " << (int) convolution_clock.hour.digit.hi << (int) convolution_clock.hour.digit.lo;
+//        std::cout << ":" << (int) convolution_clock.minute.digit.hi << (int) convolution_clock.minute.digit.lo << "\n";
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
 
