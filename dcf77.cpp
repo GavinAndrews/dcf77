@@ -196,7 +196,12 @@ namespace Hamming {
         // for days, weeks, month we have no parity and start counting at 1
         // for years and decades we have no parity and start counting at 0
         bcd_t candidate;
+#ifdef MSF60
+        // Year, Decade, Minute and Hour are Zero based but without Parity in MSF
+        candidate.val = (with_parity || (number_of_bins == 10) || (number_of_bins == 24) || (number_of_bins == 60))? 0x00: 0x01;
+#else
         candidate.val = (with_parity || number_of_bins == 10)? 0x00: 0x01;
+#endif
         for (uint8_t pass=0; pass < number_of_bins; ++pass) {
 
             if (with_parity) {
@@ -1939,7 +1944,7 @@ namespace DCF77_Hour_Decoder {
 //            case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
 //                hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
 
-            case OFFSET_HOUR_PROCESS: hamming_binning<hour_bins, 7, true>(bins, hour_data);
+            case OFFSET_HOUR_PROCESS: hamming_binning<hour_bins, 6, false>(bins, hour_data);
                 compute_max_index(bins);
                 // fall through on purpose
             default: hour_data.val = 0;
@@ -2001,7 +2006,7 @@ namespace DCF77_Minute_Decoder {
             case OFFSET_MINUTE_40: minute_data.val += 0x40*tick_value; break;
 //            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
 //                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
-            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 8, /*true*/false>(bins, minute_data);
+            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 7, /*true*/false>(bins, minute_data);
                 compute_max_index(bins);
                 // fall through on purpose
             default: minute_data.val = 0;
@@ -2081,13 +2086,11 @@ namespace DCF77_Second_Decoder {
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
 
-        if (prediction_match != 0) {
-            std::cout << "\nEnable Convolution Match\n";
-        }
          prediction_match = 0;
     }
 
 #ifdef MSF60
+
 
     void convolution_binning(const uint8_t tick_data) {
         using namespace Arithmetic_Tools;
@@ -2103,8 +2106,6 @@ namespace DCF77_Second_Decoder {
 
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
 
-            std::cout<< "CB Max Index: "<<(int) bins.max_index << "\n";
-
             const uint8_t convolution_weight = 50;
             if (DCF77_Second_Decoder::bins.max > 255 - convolution_weight) {
                 // If we know we can not raise the maximum any further we
@@ -2119,30 +2120,16 @@ namespace DCF77_Second_Decoder {
         }
 
         if (tick_data == min_marker) {
-            //TODO T
-//            bounded_increment<6>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
-//            if (DCF77_Second_Decoder::bins.tick == DCF77_Second_Decoder::bins.max_index) {
-//                prediction_match += 6;
-//            }
+            bounded_increment<50>(DCF77_Second_Decoder::bins.data[DCF77_Second_Decoder::bins.tick]);
+            if (DCF77_Second_Decoder::bins.tick == DCF77_Second_Decoder::bins.max_index) {
+                prediction_match += 50;
+            }
         } else if (tick_data == A0_B0 || tick_data == A0_B1 || tick_data == A1_B0 || tick_data == A1_B1) {
 
-            // Convolution spans the following....
-            // Byte0 to Byte5 bit 2 inclusive i.e. Byte0 0..8, Byte1 0..8, ..., Byte5 0..2
-
-            // byte_0A:	bit 17-24	// year
-            // byte_1A:	bit 25-32	// month + bit 0-2 day
-            // byte_2A:	bit 33-40	// b it 3-5 day + weekday + bit 0-1 hour
-            // byte_3A:	bit 41-48	// bit 2-5 hour + bit 0-3 minute
-            // byte_4A:	bit 49-56	// bit 4-6 minute + 11110
-            // byte_5A:	bit 57-59	// 011
-
-            // i.e. 17 to 59 of the transmision, i.e. Everything from Second 17 through to the
-            // minute end
-
-            // The convolution maximum will occur at the centre so (59+17)/2 = 33.5
-
             // bit 17 is where the convolution kernel starts
-            uint8_t bin = bins.tick > 17 ? bins.tick-17 : seconds_per_minute-1;
+            uint8_t bin = bins.tick;
+            if (bin<17) bin += seconds_per_minute;
+            bin -= 17;
 
             for (uint8_t current_byte_index = 0; current_byte_index < 6; current_byte_index++) {
 
@@ -2153,19 +2140,18 @@ namespace DCF77_Second_Decoder {
                      current_bit_index < 8 && !(current_byte_index == 5 && current_bit_index > 2);
                      current_bit_index++) {
 
-                    const bool is_match = (tick_data == (((current_byte_A_value << 1) & 2) | (current_byte_B_value & 1)));
+                    const bool is_match = (tick_data == (((current_byte_A_value & 1)<< 1)  | (current_byte_B_value & 1)));
 
                     DCF77_Second_Decoder::bins.data[bin] += is_match;
-
-                    //TODO T
-//                    if (bin == DCF77_Second_Decoder::bins.max_index) {
-//                        prediction_match += is_match;
-//                    }
+                    if (bin == DCF77_Second_Decoder::bins.max_index) {
+                        prediction_match += is_match;
+                    }
 
                     current_byte_A_value >>= 1;
                     current_byte_B_value >>= 1;
 
-                    bin = bin > 0 ? bin - 1 : DCF77_Second_Decoder::seconds_per_minute - 1;
+                    if (bin<1) bin += seconds_per_minute;
+                    bin -= 1;
                 }
             }
         }
@@ -2267,12 +2253,8 @@ namespace DCF77_Second_Decoder {
             // the sync mark was detected
 
             Hamming::compute_max_index(DCF77_Second_Decoder::bins);
-
-            std::cout<< "SMB Max Index: "<<(int) bins.max_index << "\n";
         }
     }
-
-
 
 #else     
 
