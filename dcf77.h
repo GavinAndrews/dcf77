@@ -48,9 +48,7 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 #include <stdint.h>
 
-#ifdef STANDALONE
-    #include "standalone.h"
-#else
+#ifndef STANDALONE
     #include "Arduino.h"
 #endif
 
@@ -166,7 +164,6 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 #endif
 
-
 namespace BCD {
     typedef union {
         struct {
@@ -202,6 +199,16 @@ namespace BCD {
 }
 
 namespace DCF77_Clock {
+
+    typedef enum {
+        useless  = 0,  // waiting for good enough signal
+        dirty    = 1,  // time data available but unreliable
+        free     = 2,  // clock was once synced but now may deviate more than 200 ms, must not re-lock if valid phase is detected
+        unlocked = 3,  // lock was once synced, inaccuracy below 200 ms, may re-lock if a valid phase is detected
+        locked   = 4,  // clock driven by accurate phase, time is accurate but not all decoder stages have sufficient quality for sync
+        synced   = 5   // best possible quality, clock is 100% synced
+    } clock_state_t;
+
     typedef struct {
         BCD::bcd_t year;     // 0..99
         BCD::bcd_t month;    // 1..12
@@ -213,8 +220,10 @@ namespace DCF77_Clock {
         bool uses_summertime;
         bool timezone_change_scheduled;
         bool leap_second_scheduled;
+#ifdef MSF60
+        clock_state_t clock_state;
+#endif
     } time_t;
-
 
     // Once the clock has locked to the DCF77 signal
     // and has decoded a reliable time signal it will
@@ -247,14 +256,6 @@ namespace DCF77_Clock {
     // determine quality of the DCF77 signal lock
     uint8_t get_overall_quality_factor();
 
-    typedef enum {
-        useless  = 0,  // waiting for good enough signal
-        dirty    = 1,  // time data available but unreliable
-        free     = 2,  // clock was once synced but now may deviate more than 200 ms, must not re-lock if valid phase is detected
-        unlocked = 3,  // lock was once synced, inaccuracy below 200 ms, may re-lock if a valid phase is detected
-        locked   = 4,  // clock driven by accurate phase, time is accurate but not all decoder stages have sufficient quality for sync
-        synced   = 5   // best possible quality, clock is 100% synced
-    } clock_state_t;
     // determine the internal clock state
     uint8_t get_clock_state();
 
@@ -270,9 +271,6 @@ namespace DCF77_Clock {
 namespace DCF77 {
 
 #ifdef MSF60
-
-#define UNDEFINED_AND_A_BIT (0x06)
-#define UNDEFINED_AND_B_BIT (0x05)
 
     typedef enum {
         min_marker = 5,

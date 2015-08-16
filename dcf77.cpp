@@ -16,13 +16,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program. If not, see http://www.gnu.org/licenses/
 
-#define STANDALONE 1
-#define MSF60 1
-
 #include "dcf77.h"
 
 #ifndef STANDALONE
 #include <avr/eeprom.h>
+#else
+#include "standalone.h"
 #endif
 
 namespace Debug {
@@ -196,11 +195,11 @@ namespace Hamming {
         // for days, weeks, month we have no parity and start counting at 1
         // for years and decades we have no parity and start counting at 0
         bcd_t candidate;
-#ifdef MSF60
+#ifndef MSF60
+        candidate.val = (with_parity || number_of_bins == 10)? 0x00: 0x01;
+#else
         // Year, Decade, Minute and Hour are Zero based but without Parity in MSF
         candidate.val = (with_parity || (number_of_bins == 10) || (number_of_bins == 24) || (number_of_bins == 60))? 0x00: 0x01;
-#else
-        candidate.val = (with_parity || number_of_bins == 10)? 0x00: 0x01;
 #endif
         for (uint8_t pass=0; pass < number_of_bins; ++pass) {
 
@@ -692,7 +691,234 @@ namespace DCF77_Encoder {
         }
     }
 
-#ifdef MSF60
+#ifndef MSF60  // DCF77
+
+    DCF77::tick_t get_current_signal(const DCF77::time_data_t &now) {
+        using namespace Arithmetic_Tools;
+
+        if (now.second >= 1 && now.second <= 14) {
+            // weather data or other stuff we can not compute
+            return undefined;
+        }
+
+        bool result;
+        switch (now.second) {
+            case 0:  // start of minute
+                return short_tick;
+
+            case 15:
+                if (now.undefined_abnormal_transmitter_operation_output) { return undefined; }
+                result = now.abnormal_transmitter_operation; break;
+
+            case 16:
+                if (now.undefined_timezone_change_scheduled_output) { return undefined; }
+                result = now.timezone_change_scheduled; break;
+
+            case 17:
+                if (now.undefined_uses_summertime_output) {return undefined; }
+                result = now.uses_summertime; break;
+
+            case 18:
+                if (now.undefined_uses_summertime_output) {return undefined; }
+                result = !now.uses_summertime; break;
+
+            case 19:
+                result = now.leap_second_scheduled; break;
+
+            case 20:  // start of time information
+                return long_tick;
+
+            case OFFSET_MINUTE_1:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.lo & 0x1; break;
+            case OFFSET_MINUTE_2:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.lo & 0x2; break;
+            case OFFSET_MINUTE_4:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.lo & 0x4; break;
+            case OFFSET_MINUTE_8:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.lo & 0x8; break;
+
+            case OFFSET_MINUTE_10:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.hi & 0x1; break;
+            case OFFSET_MINUTE_20:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.hi & 0x2; break;
+            case OFFSET_MINUTE_40:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = now.minute.digit.hi & 0x4; break;
+
+            case OFFSET_MINUTE_PARITY:
+                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
+                result = parity(now.minute.val); break;
+
+
+            case OFFSET_HOUR_1:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = now.hour.digit.lo & 0x1; break;
+            case OFFSET_HOUR_2:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = now.hour.digit.lo & 0x2; break;
+            case OFFSET_HOUR_4:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = now.hour.digit.lo & 0x4; break;
+            case OFFSET_HOUR_8:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = now.hour.digit.lo & 0x8; break;
+
+            case OFFSET_HOUR_10:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = now.hour.digit.hi & 0x1; break;
+            case OFFSET_HOUR_20:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = now.hour.digit.hi & 0x2; break;
+
+            case OFFSET_HOUR_PARITY:
+                if (now.hour.val > 0x23) { return undefined; }
+                result = parity(now.hour.val); break;
+
+            case OFFSET_DAY_1:
+                if (now.day.val > 0x31) { return undefined; }
+                result = now.day.digit.lo & 0x1; break;
+            case OFFSET_DAY_2:
+                if (now.day.val > 0x31) { return undefined; }
+                result = now.day.digit.lo & 0x2; break;
+            case OFFSET_DAY_4:
+                if (now.day.val > 0x31) { return undefined; }
+                result = now.day.digit.lo & 0x4; break;
+            case OFFSET_DAY_8:
+                if (now.day.val > 0x31) { return undefined; }
+                result = now.day.digit.lo & 0x8; break;
+
+            case OFFSET_DAY_10:
+                if (now.day.val > 0x31) { return undefined; }
+                result = now.day.digit.hi & 0x1; break;
+            case OFFSET_DAY_20:
+                if (now.day.val > 0x31) { return undefined; }
+                result = now.day.digit.hi & 0x2; break;
+
+            case OFFSET_WEEKDAY_1:
+                if (now.weekday.val > 0x7) { return undefined; }
+                result = now.weekday.val & 0x1; break;
+            case OFFSET_WEEKDAY_2:
+                if (now.weekday.val > 0x7) { return undefined; }
+                result = now.weekday.val & 0x2; break;
+            case OFFSET_WEEKDAY_4:
+                if (now.weekday.val > 0x7) { return undefined; }
+                result = now.weekday.val & 0x4; break;
+
+            case OFFSET_MONTH_1:
+                if (now.month.val > 0x12) { return undefined; }
+                result = now.month.digit.lo & 0x1; break;
+            case OFFSET_MONTH_2:
+                if (now.month.val > 0x12) { return undefined; }
+                result = now.month.digit.lo & 0x2; break;
+            case OFFSET_MONTH_4:
+                if (now.month.val > 0x12) { return undefined; }
+                result = now.month.digit.lo & 0x4; break;
+            case OFFSET_MONTH_8:
+                if (now.month.val > 0x12) { return undefined; }
+                result = now.month.digit.lo & 0x8; break;
+
+            case OFFSET_MONTH_10:
+                if (now.month.val > 0x12) { return undefined; }
+                result = now.month.digit.hi & 0x1; break;
+
+            case OFFSET_YEAR_1:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.lo & 0x1; break;
+            case OFFSET_YEAR_2:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.lo & 0x2; break;
+            case OFFSET_YEAR_4:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.lo & 0x4; break;
+            case OFFSET_YEAR_8:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.lo & 0x8; break;
+
+            case OFFSET_DECADE_1:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.hi & 0x1; break;
+            case OFFSET_DECADE_2:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.hi & 0x2; break;
+            case OFFSET_DECADE_4:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.hi & 0x4; break;
+            case OFFSET_DECADE_8:
+                if (now.year.val > 0x99) { return undefined; }
+                result = now.year.digit.hi & 0x8; break;
+
+            case 58:
+                if (now.weekday.val > 0x07 ||
+                    now.day.val     > 0x31 ||
+                    now.month.val   > 0x12 ||
+                    now.year.val    > 0x99) { return undefined; }
+
+                result = parity(now.day.digit.lo)   ^
+                         parity(now.day.digit.hi)   ^
+                         parity(now.month.digit.lo) ^
+                         parity(now.month.digit.hi) ^
+                         parity(now.weekday.val)    ^
+                         parity(now.year.digit.lo)  ^
+                         parity(now.year.digit.hi); break;
+
+            case 59:
+                // special handling for leap seconds
+                if (now.leap_second_scheduled && now.minute.val == 0) { result = 0; break; }
+                // standard case: fall through to "sync_mark"
+            case 60:
+                return sync_mark;
+
+            default:
+                return undefined;
+        }
+
+        return result? long_tick: short_tick;
+    }
+
+    void get_serialized_clock_stream(const DCF77::time_data_t &now, DCF77::serialized_clock_stream &data) {
+        using namespace Arithmetic_Tools;
+
+        // bit 16-20  // flags
+        data.byte_0 = 0;
+        data.byte_0 = set_bit(data.byte_0, 3, now.timezone_change_scheduled );
+        data.byte_0 = set_bit(data.byte_0, 4, now.uses_summertime);
+        data.byte_0 = set_bit(data.byte_0, 5, !now.uses_summertime);
+        data.byte_0 = set_bit(data.byte_0, 6, now.leap_second_scheduled);
+        data.byte_0 = set_bit(data.byte_0, 7, 1);
+
+        // bit 21-28  // minutes
+        data.byte_1 = set_bit(now.minute.val, 7, parity(now.minute.val));
+
+        // bit 29-36  // hours, bit 0 of day
+        data.byte_2 = set_bit(now.hour.val, 6, parity(now.hour.val));
+        data.byte_2 = set_bit(data.byte_2, 7, now.day.bit.b0);
+
+
+        // bit 37-44  // day + weekday
+        data.byte_3 = now.day.val>>1 | now.weekday.val<<5;
+
+        // bit 45-52  // month + bit 0-2 of year
+        data.byte_4 = now.month.val | now.year.val<<5;
+
+        const uint8_t date_parity = parity(now.day.digit.lo)   ^
+                                    parity(now.day.digit.hi)   ^
+                                    parity(now.month.digit.lo) ^
+                                    parity(now.month.digit.hi) ^
+                                    parity(now.weekday.val)    ^
+                                    parity(now.year.digit.lo)  ^
+                                    parity(now.year.digit.hi);
+        // bit 53-58  // year + parity
+        data.byte_5 = set_bit(now.year.val>>3, 5, date_parity);
+    }
+
+#else  // MSF60
+
     DCF77::tick_t get_current_signal(const DCF77::time_data_t &now) {
         using namespace Arithmetic_Tools;
 
@@ -899,236 +1125,6 @@ namespace DCF77_Encoder {
         return ((DCF77::tick_t)(result_A<<1 + result_B));
     }
 
-#else
-    DCF77::tick_t get_current_signal(const DCF77::time_data_t &now) {
-        using namespace Arithmetic_Tools;
-
-        if (now.second >= 1 && now.second <= 14) {
-            // weather data or other stuff we can not compute
-            return undefined;
-        }
-
-        bool result;
-        switch (now.second) {
-            case 0:  // start of minute
-                return short_tick;
-
-            case 15:
-                if (now.undefined_abnormal_transmitter_operation_output) { return undefined; }
-                result = now.abnormal_transmitter_operation; break;
-
-            case 16:
-                if (now.undefined_timezone_change_scheduled_output) { return undefined; }
-                result = now.timezone_change_scheduled; break;
-
-            case 17:
-                if (now.undefined_uses_summertime_output) {return undefined; }
-                result = now.uses_summertime; break;
-
-            case 18:
-                if (now.undefined_uses_summertime_output) {return undefined; }
-                result = !now.uses_summertime; break;
-
-            case 19:
-                result = now.leap_second_scheduled; break;
-
-            case 20:  // start of time information
-                return long_tick;
-
-            case OFFSET_MINUTE_1:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.lo & 0x1; break;
-            case OFFSET_MINUTE_2:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.lo & 0x2; break;
-            case OFFSET_MINUTE_4:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.lo & 0x4; break;
-            case OFFSET_MINUTE_8:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.lo & 0x8; break;
-
-            case OFFSET_MINUTE_10:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.hi & 0x1; break;
-            case OFFSET_MINUTE_20:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.hi & 0x2; break;
-            case OFFSET_MINUTE_40:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = now.minute.digit.hi & 0x4; break;
-
-            case OFFSET_MINUTE_PARITY:
-                if (now.undefined_minute_output || now.minute.val > 0x59) { return undefined; }
-                result = parity(now.minute.val); break;
-
-
-            case OFFSET_HOUR_1:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = now.hour.digit.lo & 0x1; break;
-            case OFFSET_HOUR_2:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = now.hour.digit.lo & 0x2; break;
-            case OFFSET_HOUR_4:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = now.hour.digit.lo & 0x4; break;
-            case OFFSET_HOUR_8:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = now.hour.digit.lo & 0x8; break;
-
-            case OFFSET_HOUR_10:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = now.hour.digit.hi & 0x1; break;
-            case OFFSET_HOUR_20:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = now.hour.digit.hi & 0x2; break;
-
-            case OFFSET_HOUR_PARITY:
-                if (now.hour.val > 0x23) { return undefined; }
-                result = parity(now.hour.val); break;
-
-            case OFFSET_DAY_1:
-                if (now.day.val > 0x31) { return undefined; }
-                result = now.day.digit.lo & 0x1; break;
-            case OFFSET_DAY_2:
-                if (now.day.val > 0x31) { return undefined; }
-                result = now.day.digit.lo & 0x2; break;
-            case OFFSET_DAY_4:
-                if (now.day.val > 0x31) { return undefined; }
-                result = now.day.digit.lo & 0x4; break;
-            case OFFSET_DAY_8:
-                if (now.day.val > 0x31) { return undefined; }
-                result = now.day.digit.lo & 0x8; break;
-
-            case OFFSET_DAY_10:
-                if (now.day.val > 0x31) { return undefined; }
-                result = now.day.digit.hi & 0x1; break;
-            case OFFSET_DAY_20:
-                if (now.day.val > 0x31) { return undefined; }
-                result = now.day.digit.hi & 0x2; break;
-
-            case OFFSET_WEEKDAY_1:
-                if (now.weekday.val > 0x7) { return undefined; }
-                result = now.weekday.val & 0x1; break;
-            case OFFSET_WEEKDAY_2:
-                if (now.weekday.val > 0x7) { return undefined; }
-                result = now.weekday.val & 0x2; break;
-            case OFFSET_WEEKDAY_4:
-                if (now.weekday.val > 0x7) { return undefined; }
-                result = now.weekday.val & 0x4; break;
-
-            case OFFSET_MONTH_1:
-                if (now.month.val > 0x12) { return undefined; }
-                result = now.month.digit.lo & 0x1; break;
-            case OFFSET_MONTH_2:
-                if (now.month.val > 0x12) { return undefined; }
-                result = now.month.digit.lo & 0x2; break;
-            case OFFSET_MONTH_4:
-                if (now.month.val > 0x12) { return undefined; }
-                result = now.month.digit.lo & 0x4; break;
-            case OFFSET_MONTH_8:
-                if (now.month.val > 0x12) { return undefined; }
-                result = now.month.digit.lo & 0x8; break;
-
-            case OFFSET_MONTH_10:
-                if (now.month.val > 0x12) { return undefined; }
-                result = now.month.digit.hi & 0x1; break;
-
-            case OFFSET_YEAR_1:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.lo & 0x1; break;
-            case OFFSET_YEAR_2:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.lo & 0x2; break;
-            case OFFSET_YEAR_4:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.lo & 0x4; break;
-            case OFFSET_YEAR_8:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.lo & 0x8; break;
-
-            case OFFSET_DECADE_1:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.hi & 0x1; break;
-            case OFFSET_DECADE_2:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.hi & 0x2; break;
-            case OFFSET_DECADE_4:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.hi & 0x4; break;
-            case OFFSET_DECADE_8:
-                if (now.year.val > 0x99) { return undefined; }
-                result = now.year.digit.hi & 0x8; break;
-
-            case 58:
-                if (now.weekday.val > 0x07 ||
-                    now.day.val     > 0x31 ||
-                    now.month.val   > 0x12 ||
-                    now.year.val    > 0x99) { return undefined; }
-
-                result = parity(now.day.digit.lo)   ^
-                         parity(now.day.digit.hi)   ^
-                         parity(now.month.digit.lo) ^
-                         parity(now.month.digit.hi) ^
-                         parity(now.weekday.val)    ^
-                         parity(now.year.digit.lo)  ^
-                         parity(now.year.digit.hi); break;
-
-            case 59:
-                // special handling for leap seconds
-                if (now.leap_second_scheduled && now.minute.val == 0) { result = 0; break; }
-                // standard case: fall through to "sync_mark"
-            case 60:
-                return sync_mark;
-
-            default:
-                return undefined;
-        }
-
-        return result? long_tick: short_tick;
-    }
-#endif
-
-#ifndef MSF60
-
-    void get_serialized_clock_stream(const DCF77::time_data_t &now, DCF77::serialized_clock_stream &data) {
-        using namespace Arithmetic_Tools;
-
-        // bit 16-20  // flags
-        data.byte_0 = 0;
-        data.byte_0 = set_bit(data.byte_0, 3, now.timezone_change_scheduled );
-        data.byte_0 = set_bit(data.byte_0, 4, now.uses_summertime);
-        data.byte_0 = set_bit(data.byte_0, 5, !now.uses_summertime);
-        data.byte_0 = set_bit(data.byte_0, 6, now.leap_second_scheduled);
-        data.byte_0 = set_bit(data.byte_0, 7, 1);
-
-        // bit 21-28  // minutes
-        data.byte_1 = set_bit(now.minute.val, 7, parity(now.minute.val));
-
-        // bit 29-36  // hours, bit 0 of day
-        data.byte_2 = set_bit(now.hour.val, 6, parity(now.hour.val));
-        data.byte_2 = set_bit(data.byte_2, 7, now.day.bit.b0);
-
-
-        // bit 37-44  // day + weekday
-        data.byte_3 = now.day.val>>1 | now.weekday.val<<5;
-
-        // bit 45-52  // month + bit 0-2 of year
-        data.byte_4 = now.month.val | now.year.val<<5;
-
-        const uint8_t date_parity = parity(now.day.digit.lo)   ^
-                                    parity(now.day.digit.hi)   ^
-                                    parity(now.month.digit.lo) ^
-                                    parity(now.month.digit.hi) ^
-                                    parity(now.weekday.val)    ^
-                                    parity(now.year.digit.lo)  ^
-                                    parity(now.year.digit.hi);
-        // bit 53-58  // year + parity
-        data.byte_5 = set_bit(now.year.val>>3, 5, date_parity);
-    }
-
-#else
-
     void get_serialized_clock_stream(const DCF77::time_data_t &now, DCF77::serialized_clock_stream_pair &data) {
         using namespace Arithmetic_Tools;
 
@@ -1181,7 +1177,6 @@ namespace DCF77_Encoder {
         data.B.byte_5 = set_bit(0, 0, time_parity);
         data.B.byte_5 = set_bit(data.B.byte_5, 1, now.uses_summertime);
     }
-
 #endif
 
     void debug(const DCF77::time_data_t &clock) {
@@ -1436,73 +1431,7 @@ namespace DCF77_Flag_Decoder {
         }
     }
 
-#ifdef MSF60
-
-    int8_t year_parity;     // 54B = Decade + Year 17A-24A
-    int8_t weekday_parity;  // 56B = Day-of-week 36A-38A
-    int8_t time_parity;     // 57B = Hour + Minute 39A-51A
-
-    // Parity Bits are:
-    //
-    // year_parity      54B = Decade + Year 17A-24A
-    // date_parity      55B = Month + Day of Month 25A-35a
-    // weekday_parit    56B = Day-of-week 36A-38A
-    // time_parity      57B = Hour + Minute 39A-51A
-    //
-    // Note that these bits are not really used anywhere (as per the DCF77 implementation)
-    // so are maintained for information only
-
-    void setup() {
-
-        abnormal_transmitter_operation = false;     // Not present in MSF60
-        leap_second_scheduled = 0;                  // Amazingly! Not present in MSF60
-
-        timezone_change_scheduled = 0;
-        uses_summertime = 0;
-
-        year_parity = 0;
-        date_parity = 0;
-        weekday_parity = 0;
-        time_parity = 0;
-    }
-
-    void process_tick(const uint8_t current_second, const bool tick_value) {
-
-        switch (current_second) {
-            case 53: cummulate(timezone_change_scheduled, tick_value);
-//              std::cout << "Process Tick53: TZ Change Coming=" << (int)tick_value << ", Average: " << (int) timezone_change_scheduled << "\n";
-                break;
-            case 54: cummulate(year_parity, tick_value); break;
-            case 55: cummulate(date_parity, tick_value); break;
-            case 56: cummulate(weekday_parity, tick_value); break;
-            case 57: cummulate(time_parity, tick_value); break;
-            case 58: cummulate(uses_summertime, tick_value);
-//              std::cout << "Process Tick58: Summertime=" << (int)tick_value << ", Average: " << (int) uses_summertime << "\n";
-                break;
-        }
-    }
-
-    void get_quality(uint8_t &uses_summertime_quality,
-                     uint8_t &timezone_change_scheduled_quality) {
-        uses_summertime_quality = abs(uses_summertime);
-        timezone_change_scheduled_quality = abs(timezone_change_scheduled);
-    }
-
-    void debug() {
-        Serial.print(F("TZ change, TZ, Year parity: Date parity: Time parity: Weekday parity: "));
-        Serial.print(timezone_change_scheduled, DEC);
-        Serial.print(',');
-        Serial.print(uses_summertime, DEC);
-        Serial.print(',');
-        Serial.println(year_parity, DEC);
-        Serial.print(',');
-        Serial.println(date_parity, DEC);
-        Serial.print(',');
-        Serial.println(time_parity, DEC);
-        Serial.print(',');
-        Serial.println(weekday_parity);
-    }
-#else
+#ifndef MSF60
 
     void setup() {
         uses_summertime = 0;
@@ -1544,8 +1473,69 @@ namespace DCF77_Flag_Decoder {
         Serial.println(date_parity, DEC);
     }
 
-#endif
+#else
 
+    int8_t year_parity;     // 54B = Decade + Year 17A-24A
+    int8_t weekday_parity;  // 56B = Day-of-week 36A-38A
+    int8_t time_parity;     // 57B = Hour + Minute 39A-51A
+
+    // Parity Bits are:
+    //
+    // year_parity      54B = Decade + Year 17A-24A
+    // date_parity      55B = Month + Day of Month 25A-35a
+    // weekday_parit    56B = Day-of-week 36A-38A
+    // time_parity      57B = Hour + Minute 39A-51A
+    //
+    // Note that these bits are not really used anywhere (as per the DCF77 implementation)
+    // so are maintained for information only
+
+    void setup() {
+
+        abnormal_transmitter_operation = false;     // Not present in MSF60
+        leap_second_scheduled = 0;                  // Amazingly! Not present in MSF60
+
+        timezone_change_scheduled = 0;
+        uses_summertime = 0;
+
+        year_parity = 0;
+        date_parity = 0;
+        weekday_parity = 0;
+        time_parity = 0;
+    }
+
+    void process_tick(const uint8_t current_second, const bool tick_value) {
+
+        switch (current_second) {
+            case 53: cummulate(timezone_change_scheduled, tick_value); break;
+            case 54: cummulate(year_parity, tick_value); break;
+            case 55: cummulate(date_parity, tick_value); break;
+            case 56: cummulate(weekday_parity, tick_value); break;
+            case 57: cummulate(time_parity, tick_value); break;
+            case 58: cummulate(uses_summertime, tick_value); break;
+        }
+    }
+
+    void get_quality(uint8_t &uses_summertime_quality,
+                     uint8_t &timezone_change_scheduled_quality) {
+        uses_summertime_quality = abs(uses_summertime);
+        timezone_change_scheduled_quality = abs(timezone_change_scheduled);
+    }
+
+    void debug() {
+        Serial.print(F("TZ change, TZ, Year parity: Date parity: Time parity: Weekday parity: "));
+        Serial.print(timezone_change_scheduled, DEC);
+        Serial.print(',');
+        Serial.print(uses_summertime, DEC);
+        Serial.print(',');
+        Serial.println(year_parity, DEC);
+        Serial.print(',');
+        Serial.println(date_parity, DEC);
+        Serial.print(',');
+        Serial.println(time_parity, DEC);
+        Serial.print(',');
+        Serial.println(weekday_parity);
+    }
+#endif
 
     void reset_after_previous_hour() {
         // HH := hh+1
@@ -1615,10 +1605,8 @@ namespace DCF77_Decade_Decoder {
             case OFFSET_DECADE_2: decade_data.val += 0x02*tick_value; break;
             case OFFSET_DECADE_4: decade_data.val += 0x04*tick_value; break;
             case OFFSET_DECADE_8: decade_data.val += 0x08*tick_value; break;
-
             case OFFSET_DECADE_PROCESS: hamming_binning<decade_bins, 4, false>(bins, decade_data);
                 compute_max_index(bins);
-                //std::cout << "Process Decade: " << (int) decade_data.val << "\n";
                 // fall through on purpose
             default: decade_data.val = 0;
         }
@@ -1682,7 +1670,6 @@ namespace DCF77_Year_Decoder {
 
             case OFFSET_YEAR_PROCESS: hamming_binning<year_bins, 4, false>(bins, year_data);
                 compute_max_index(bins);
-                //std::cout << "Process Year: " << (int) year_data.val << "\n";
                 // fall through on purpose
             default: year_data.val = 0;
         }
@@ -1940,11 +1927,15 @@ namespace DCF77_Hour_Decoder {
             case OFFSET_HOUR_8: hour_data.val +=  0x8*tick_value; break;
             case OFFSET_HOUR_10: hour_data.val += 0x10*tick_value; break;
             case OFFSET_HOUR_20: hour_data.val += 0x20*tick_value; break;
-
-//            case 35: hour_data.val += 0x80*tick_value;        // Parity !!!
-//                hamming_binning<hour_bins, 7, true>(bins, hour_data); break;
-
-            case OFFSET_HOUR_PROCESS: hamming_binning<hour_bins, 6, false>(bins, hour_data);
+#ifndef MSF60
+            case 35: hour_data.val += 0x80*tick_value;  break;   // Parity
+#endif
+            case OFFSET_HOUR_PROCESS:
+#ifndef MSF60
+                hamming_binning<hour_bins, 7, true>(bins, hour_data);
+#else
+                hamming_binning<hour_bins, 6, false>(bins, hour_data);
+#endif
                 compute_max_index(bins);
                 // fall through on purpose
             default: hour_data.val = 0;
@@ -2004,9 +1995,15 @@ namespace DCF77_Minute_Decoder {
             case OFFSET_MINUTE_10: minute_data.val += 0x10*tick_value; break;
             case OFFSET_MINUTE_20: minute_data.val += 0x20*tick_value; break;
             case OFFSET_MINUTE_40: minute_data.val += 0x40*tick_value; break;
-//            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value;        // Parity !!!
-//                hamming_binning<minute_bins, 8, true>(bins, minute_data); break;
-            case OFFSET_MINUTE_PROCESS: hamming_binning<minute_bins, 7, /*true*/false>(bins, minute_data);
+#ifndef MSF60
+            case OFFSET_MINUTE_PARITY: minute_data.val += 0x80*tick_value; break; // Parity
+#endif
+            case OFFSET_MINUTE_PROCESS:
+#ifndef MSF60
+                hamming_binning<minute_bins, 8, true>(bins, minute_data);
+#else
+                hamming_binning<minute_bins, 7, false>(bins, minute_data);
+#endif
                 compute_max_index(bins);
                 // fall through on purpose
             default: minute_data.val = 0;
@@ -2080,9 +2077,6 @@ namespace DCF77_Second_Decoder {
 
         // the convolution kernel shall have proper flag settings
         DCF77_Encoder::autoset_control_bits(convolution_clock);
-
-//        std::cout << "ConvolutionKernel: " << (int) convolution_clock.hour.digit.hi << (int) convolution_clock.hour.digit.lo;
-//        std::cout << ":" << (int) convolution_clock.minute.digit.hi << (int) convolution_clock.minute.digit.lo << "\n";
 
         DCF77_Encoder::get_serialized_clock_stream(convolution_clock, convolution_kernel);
 
@@ -2532,17 +2526,13 @@ namespace DCF77_Local_Clock {
     void process_1_Hz_tick(const DCF77::time_data_t &decoded_time) {
         uint8_t quality_factor = DCF77_Clock_Controller::get_overall_quality_factor();
 
-        //std::cout << (int)quality_factor << " ";
-
         if (quality_factor > 1) {
             if (clock_state != synced) {
                 DCF77_Clock_Controller::sync_achieved_event_handler();
-                std::cout << "Clock State Change, Now: synced\n";
                 clock_state = synced;
             }
         } else if (clock_state == synced) {
             DCF77_Clock_Controller::sync_lost_event_handler();
-            std::cout << "Clock State Change, Now: locked\n";
             clock_state = locked;
         }
 
@@ -2551,7 +2541,6 @@ namespace DCF77_Local_Clock {
                 case useless: {
                     if (quality_factor > 0) {
                         clock_state = dirty;
-                        std::cout << "Clock State Change, Now: dirty\n";
                         break;  // goto dirty state
                     } else {
                         second_toggle = !second_toggle;
@@ -2562,7 +2551,6 @@ namespace DCF77_Local_Clock {
                 case dirty: {
                     if (quality_factor == 0) {
                         clock_state = useless;
-                        std::cout << "Clock State Change, Now: useless\n";
                         second_toggle = !second_toggle;
                         DCF77_Encoder::reset(local_clock_time);
                         return;
@@ -2600,7 +2588,6 @@ namespace DCF77_Local_Clock {
                         second_toggle = !second_toggle;
                         return;
                     } else {
-                        std::cout << "Clock State Change, Now: unlocked\n";
                         clock_state = unlocked;
                         DCF77_Clock_Controller::phase_lost_event_handler();
                         unlocked_seconds = 0;
@@ -2625,7 +2612,6 @@ namespace DCF77_Local_Clock {
                             //     missed leap seconds.
                             // We ignore this issue as it is not worse than running in
                             // free mode.
-                            std::cout << "Clock State Change, Now: locked\n";
                             clock_state = locked;
                             if (tick < 200) {
                                 // time output was handled at most 200 ms before
@@ -2665,7 +2651,6 @@ namespace DCF77_Local_Clock {
                 unlocked_seconds = 1;
 
                 // 1 Hz tick missing for more than 1200ms
-                std::cout << "Clock State Change, Now: unlocked\n";
                 clock_state = unlocked;
                 DCF77_Clock_Controller::phase_lost_event_handler();
             }
@@ -2690,7 +2675,6 @@ namespace DCF77_Local_Clock {
 
                 ++unlocked_seconds;
                 if (unlocked_seconds > max_unlocked_seconds) {
-                    std::cout << "Clock State Change, Now: free\n";
                     clock_state = free;
                 }
             }
@@ -2853,6 +2837,12 @@ namespace DCF77_Clock_Controller {
             time.uses_summertime           = decoded_time.uses_summertime;
             time.leap_second_scheduled     = decoded_time.leap_second_scheduled;
             time.timezone_change_scheduled = decoded_time.timezone_change_scheduled;
+#ifdef MSF60
+            // It would be nice of DCF77_Clock and DCF77_LocalClock shared the same definition
+            // but cast for now since their values appear identical
+            time.clock_state = (DCF77_Clock::clock_state_t)DCF77_Local_Clock::clock_state;
+#endif
+
             output_handler(time);
         }
 
@@ -2907,15 +2897,6 @@ namespace DCF77_Clock_Controller {
 
     uint8_t get_overall_quality_factor() {
         using namespace Arithmetic_Tools;
-
-//        std::cout << "\nQMod=" << (int)DCF77_Demodulator::get_quality_factor() << ",";
-//        std::cout << "QSecond=" << (int)DCF77_Second_Decoder::get_quality_factor() << ",";
-//        std::cout << "QMinute=" << (int)DCF77_Minute_Decoder::get_quality_factor() << ",";
-//        std::cout << "QHour=" << (int)DCF77_Hour_Decoder::get_quality_factor() << ",";
-//        std::cout << "QDay=" << (int)DCF77_Day_Decoder::get_quality_factor() << ",";
-//        std::cout << "QMonth=" << (int)DCF77_Month_Decoder::get_quality_factor() << ",";
-//        std::cout << "QYear=" << (int)DCF77_Year_Decoder::get_quality_factor() << ",";
-//        std::cout << "QWeekDay=" << (int)DCF77_Weekday_Decoder::get_quality_factor() << "\n";
 
         uint8_t quality_factor = DCF77_Demodulator::get_quality_factor();
         minimize(quality_factor, DCF77_Second_Decoder::get_quality_factor());
@@ -3173,8 +3154,6 @@ namespace DCF77_Clock_Controller {
     void process_single_tick_data(const DCF77::tick_t tick_data) {
         using namespace DCF77;
 
-        //std::cout << tick_data << std::endl;
-
         time_data_t now;
         set_DCF77_encoder(now);
 
@@ -3274,42 +3253,35 @@ namespace DCF77_Demodulator {
             // Second marker 100ms in length (1ms - 100ms after start of second)
             case 40:
                 initial = (count > 5);
-                //std::cout << "S1=" << (int)count << ",";
                 count=0;
                 break;
 
             case 35:
-                //std::cout << "X1=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit A 100ms in length after second marker (101ms - 200ms after start of second)
             case 30:
                 bitA = (count > 3);
-                //std::cout << "S2=" << (int)count << ",";
                 count = 0;
                 break;
 
             case 25:
-                //std::cout << "X2=" << (int)count << ",";
                 count=0;
                 break;
 
                 // Bit B 100ms in length after bit A (201ms - 300ms after start of second)
             case 20:
                 bitB = (count > 3);
-                //std::cout << "S3=" << (int)count << ",";
                 count = 0;
                 break;
 
             case 16:
-                //std::cout << "X3=" << (int)count << ",";
                 count=0;
                 break;
 
                 // this case reads 301ms - 400ms after start of second
             case 0:
-                //std::cout << "S4=" << (int)count << ",";
                 trail = (count > 8);
 
                 // If all five sections are High then must be MM
