@@ -3,6 +3,7 @@
 //
 
 #define STANDALONE 1
+#define MSF60
 
 #include "dcf77.h"
 
@@ -12,6 +13,29 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
     if (decoded_time.second.val!=0) return;
 
     std::cout << "OutTime: ";
+
+    switch (decoded_time.clock_state) {
+        case DCF77_Clock::clock_state_t::useless:
+            std::cout << "Useless ";
+            break;
+        case DCF77_Clock::clock_state_t::free:
+            std::cout << "Free    ";
+            break;
+        case DCF77_Clock::clock_state_t::dirty:
+            std::cout << "Dirty  ";
+            break;
+        case DCF77_Clock::clock_state_t::synced:
+            std::cout << "Synced  ";
+            break;
+        case DCF77_Clock::clock_state_t::unlocked:
+            std::cout << "UnLocked";
+            break;
+        case DCF77_Clock::clock_state_t::locked:
+            std::cout << "Locked  ";
+            break;
+    }
+    std::cout << " ";
+
     std::cout << (int)decoded_time.day.digit.hi << (int)decoded_time.day.digit.lo;
     std::cout << "/" << (int)decoded_time.month.digit.hi << (int)decoded_time.month.digit.lo;
     std::cout << "/20" << (int)decoded_time.year.digit.hi << (int)decoded_time.year.digit.lo << " ";

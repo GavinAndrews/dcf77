@@ -2853,6 +2853,12 @@ namespace DCF77_Clock_Controller {
             time.uses_summertime           = decoded_time.uses_summertime;
             time.leap_second_scheduled     = decoded_time.leap_second_scheduled;
             time.timezone_change_scheduled = decoded_time.timezone_change_scheduled;
+#ifdef MSF60
+            // It would be nice of DCF77_Clock and DCF77_LocalClock shared the same definition
+            // but cast for now since their values appear identical
+            time.clock_state = (DCF77_Clock::clock_state_t)DCF77_Local_Clock::clock_state;
+#endif
+
             output_handler(time);
         }
 
