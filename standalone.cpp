@@ -2,9 +2,7 @@
 // Created by Gavin on 02/07/2015.
 //
 
-#define STANDALONE 1
-#define MSF60
-
+#include "standalone.h"
 #include "dcf77.h"
 
 
@@ -22,7 +20,7 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
             std::cout << "Free    ";
             break;
         case DCF77_Clock::clock_state_t::dirty:
-            std::cout << "Dirty  ";
+            std::cout << "Dirty   ";
             break;
         case DCF77_Clock::clock_state_t::synced:
             std::cout << "Synced  ";

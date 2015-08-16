@@ -48,9 +48,7 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 #include <stdint.h>
 
-#ifdef STANDALONE
-    #include "standalone.h"
-#else
+#ifndef STANDALONE
     #include "Arduino.h"
 #endif
 
@@ -166,7 +164,6 @@ OUTDATED_COMPILER_ERROR(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
 #endif
 
-
 namespace BCD {
     typedef union {
         struct {
@@ -274,9 +271,6 @@ namespace DCF77_Clock {
 namespace DCF77 {
 
 #ifdef MSF60
-
-#define UNDEFINED_AND_A_BIT (0x06)
-#define UNDEFINED_AND_B_BIT (0x05)
 
     typedef enum {
         min_marker = 5,
