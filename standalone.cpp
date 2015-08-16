@@ -12,6 +12,7 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
 
     std::cout << "OutTime: ";
 
+#ifdef MSF60
     switch (decoded_time.clock_state) {
         case DCF77_Clock::clock_state_t::useless:
             std::cout << "Useless ";
@@ -33,6 +34,7 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
             break;
     }
     std::cout << " ";
+#endif
 
     std::cout << (int)decoded_time.day.digit.hi << (int)decoded_time.day.digit.lo;
     std::cout << "/" << (int)decoded_time.month.digit.hi << (int)decoded_time.month.digit.lo;
@@ -51,7 +53,11 @@ void output_handler(const DCF77_Clock::time_t &decoded_time) {
 int main() {
 
     DCF77_Clock_Controller::set_output_handler(&output_handler);
+#ifdef MSF60
     std::ifstream infile("capture_20150804b.csv");
+#else
+    std::ifstream infile("capture_dcf77_20150816.csv");
+#endif
 
     uint8_t a;
     std::string line;

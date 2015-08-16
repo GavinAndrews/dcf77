@@ -1553,7 +1553,9 @@ namespace DCF77_Flag_Decoder {
     void reset_before_new_day() {
         // date_parity will stay the same 00:00-23:59
         date_parity = 0;
+#ifdef MSF60
         weekday_parity = 0;
+#endif
     }
 
     bool get_abnormal_transmitter_operation() {
