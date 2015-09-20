@@ -42,7 +42,8 @@ int main() {
 #ifndef MSF60
     std::ifstream infile("standalone/capture_dcf77_20150816.csv");
 #else
-    std::ifstream infile("standalone/capture_msf60_20150804.csv");
+//    std::ifstream infile("standalone/capture_msf60_20150804.csv");
+    std::ifstream infile("standalone/capture_msf60_aido.csv");
 #endif
 
     uint8_t a;
